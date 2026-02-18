@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <title>Mandi GOLD - Aaj ke Bhav</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7f8;
+      margin: 0;
+      padding: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: green;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: #2ecc71;
+      color: white;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌾 Mandi GOLD – Aaj ke Bhav</h1>
+
+<table id="mandiTable">
+  <thead>
+    <tr>
+      <th>Mandi</th>
+      <th>Fasal</th>
+      <th>Bhav (₹/Quintal)</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="footer">
+  Data Source: Google Sheet | Developed by You 💚
+</div>
+
+<script>
+  const sheetURL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json";
+
+  fetch(sheetURL)
+    .then(res => res.text())
+    .then(data => {
+      const json = JSON.parse(data.substr(47).slice(0, -2));
+      const rows = json.table.rows;
+
+      let tableHTML = "";
+
+      rows.forEach(row => {
+        tableHTML += `
+          <tr>
+            <td>${row.c[0]?.v || ""}</td>
+            <td>${row.c[1]?.v || ""}</td>
+            <td>₹ ${row.c[2]?.v || ""}</td>
+            <td>${row.c[3]?.v || ""}</td>
+          </tr>
+        `;
+      });
+
+      document.querySelector("#mandiTable tbody").innerHTML = tableHTML;
+    })
+    .catch(err => {
+      alert("Data load nahi ho raha 😢");
+      console.error(err);
+    });
+</script>
+
+</body>
+</html>
