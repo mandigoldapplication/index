@@ -5,68 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mandi GOLD</title>
   <style>
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;   /* Ye line important hai */
-}
-.container {
-  padding-bottom: 80px; /* bottom nav ke liye space */
-}
-
-    .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  background: #0f9d58;
-  padding: 6px 0;
-  z-index: 999;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: white;
-  text-align: center;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.bottom-nav .icon {
-  font-size: 22px;
-  line-height: 1;
-}
-
-.bottom-nav .label {
-  font-size: 11px;
-}
-
-
-    
     body { font-family: Arial, sans-serif; margin:0; background:#f4f7f8; }
     header { background:#2ecc71; color:#fff; padding:12px; text-align:center; position:sticky; top:0; z-index:10; }
-    .container { padding:10px 10px 70px; }
+    .container { padding:10px 10px 90px; }
     .section { display:none; }
     .section.active { display:block; }
     table { width:100%; border-collapse:collapse; background:#fff; }
-    th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+    th, td { border:1px solid #ddd; padding:8px; text-align:center; font-size:13px; }
     th { background:#2ecc71; color:#fff; }
     .controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; justify-content:center; }
-    select, input, button { padding:8px; font-size:14px; }
-    .card { background:#fff; padding:10px; margin:8px 0; border-radius:6px; }
-    .badge { padding:3px 6px; border-radius:4px; color:#fff; font-size:12px; }
+    select, button { padding:8px; font-size:13px; }
+    .card { background:#fff; padding:10px; margin:8px 0; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+    .badge { padding:3px 6px; border-radius:4px; color:#fff; font-size:11px; }
     .teji { background:#27ae60; }
     .mandi { background:#e74c3c; }
     .stable { background:#f39c12; }
-    nav { position:fixed; bottom:0; left:0; right:0; background:#fff; display:flex; border-top:1px solid #ddd; }
-    nav button { flex:1; padding:10px 4px; background:none; border:none; font-size:12px; }
-    nav button.active { color:#2ecc71; font-weight:bold; }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      display: flex; justify-content: space-around;
+      background: #0f9d58; padding: 6px 0; z-index: 9999;
+    }
+    .bottom-nav button {
+      background: none; border: none; color: white;
+      text-align: center; font-size: 12px; cursor: pointer;
+    }
+    .bottom-nav .icon { font-size: 22px; line-height: 1; }
+    .bottom-nav .label { font-size: 11px; }
+    .bottom-nav button.active { color: #ffe082; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -75,7 +41,6 @@
 
 <div class="container">
 
-  <!-- Bhav -->
   <div id="bhav" class="section active">
     <h3>📊 Mandi ke Bhav</h3>
     <div class="controls">
@@ -91,215 +56,137 @@
     </table>
   </div>
 
-  <!-- Kisaan Samachaar -->
-  <div id="news" class="section">
-    <h3>📰 Kisaan Samachaar</h3>
-
-  </div>
-
-  <!-- Teji Mandi Report -->
+  <div id="news" class="section"></div>
   <div id="trend" class="section">
     <h3>📈 Teji–Mandi Report</h3>
     <div id="trendList"></div>
   </div>
+  <div id="weather" class="section"></div>
 
-  <!-- Mausam Samachaar -->
-  <div id="weather" class="section">
-    <h3>🌦️ Mausam Samachaar</h3>
-   
-  </div>
-
-  <!-- About -->
   <div id="about" class="section">
-    <h3>ℹ️ About Mandi GOLD</h3>
-    <div class="card">
-      <p>Mandi GOLD kisano aur vyapariyon ko mandi bhav, teji-mandi aur khabrein dene ke liye banaya gaya hai.</p>
-    </div>
+    <h3>ℹ️ About</h3>
+    <div class="card">Mandi GOLD – Kisano aur vyapariyon ke liye mandi bhav, news aur mausam updates.</div>
   </div>
 
 </div>
 
 <div class="bottom-nav">
-  <button onclick="showSection('bhav', this)">
-    <div class="icon">🌾</div>
-    <div class="label">Bhav</div>
+  <button class="active" onclick="showSection('bhav', this)">
+    <div class="icon">🌾</div><div class="label">Bhav</div>
   </button>
   <button onclick="showSection('news', this)">
-    <div class="icon">📰</div>
-    <div class="label">News</div>
+    <div class="icon">📰</div><div class="label">News</div>
   </button>
   <button onclick="showSection('trend', this)">
-    <div class="icon">📈</div>
-    <div class="label">Teji/Mandi</div>
+    <div class="icon">📈</div><div class="label">Teji/Mandi</div>
   </button>
   <button onclick="showSection('weather', this)">
-    <div class="icon">🌦️</div>
-    <div class="label">Mausam</div>
+    <div class="icon">🌦️</div><div class="label">Mausam</div>
   </button>
 </div>
 
 <script>
-const PRICE_SHEET_URL   = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Bhav";
-const NEWS_SHEET_URL    = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=News";
-const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Weather";
+  const PRICE_SHEET_URL   = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Bhav";
+  const NEWS_SHEET_URL    = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=News";
+  const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Weather";
 
   let allRows = [];
 
   function showSection(id, btn) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
 
   async function loadData() {
-  try {
-    const res = await fetch(PRICE_SHEET_URL);
-    const text = await res.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
-    allRows = json.table.rows.map(r => ({
-      mandi: r.c[0]?.v || "",
-      fasal: r.c[1]?.v || "",
-      bhav: r.c[2]?.v || "",
-      date: r.c[3]?.v || "",
-      trend: (r.c[4]?.v || "stable").toLowerCase()
-    }));
-    populateFilters();
-    renderBhav();
-    renderTrend();
-  } catch (e) {
-    alert("Bhav data load nahi ho raha 😢");
-    console.error(e);
+    try {
+      const res = await fetch(PRICE_SHEET_URL);
+      const text = await res.text();
+      const json = JSON.parse(text.substr(47).slice(0, -2));
+      allRows = json.table.rows.map(r => ({
+        mandi: r.c[0]?.v || "",
+        fasal: r.c[1]?.v || "",
+        bhav: r.c[2]?.v || "",
+        date: r.c[3]?.v || "",
+        trend: (r.c[4]?.v || "stable").toLowerCase()
+      }));
+      populateFilters();
+      renderBhav();
+      renderTrend();
+    } catch (e) {
+      alert("Bhav data load nahi ho raha 😢");
+      console.error(e);
+    }
   }
-}
-
 
   function populateFilters() {
     const mandiSet = [...new Set(allRows.map(r => r.mandi))];
     const fasalSet = [...new Set(allRows.map(r => r.fasal))];
-
-    const mandiSel = document.getElementById("mandiFilter");
-    const fasalSel = document.getElementById("fasalFilter");
-
-    mandiSel.innerHTML = '<option value="">Sab Mandi</option>' +
-      mandiSet.map(m => `<option value="${m}">${m}</option>`).join("");
-
-    fasalSel.innerHTML = '<option value="">Sab Fasal</option>' +
-      fasalSet.map(f => `<option value="${f}">${f}</option>`).join("");
+    mandiFilter.innerHTML = '<option value="">Sab Mandi</option>' + mandiSet.map(m => `<option>${m}</option>`).join("");
+    fasalFilter.innerHTML = '<option value="">Sab Fasal</option>' + fasalSet.map(f => `<option>${f}</option>`).join("");
   }
 
   function renderBhav() {
-    const mandi = document.getElementById("mandiFilter").value;
-    const fasal = document.getElementById("fasalFilter").value;
-
-    const rows = allRows.filter(r =>
-      (!mandi || r.mandi === mandi) &&
-      (!fasal || r.fasal === fasal)
-    );
-
-    document.getElementById("bhavTable").innerHTML = rows.map(r => `
+    const mandi = mandiFilter.value;
+    const fasal = fasalFilter.value;
+    const rows = allRows.filter(r => (!mandi || r.mandi===mandi) && (!fasal || r.fasal===fasal));
+    bhavTable.innerHTML = rows.map(r => `
       <tr>
-        <td>${r.mandi}</td>
-        <td>${r.fasal}</td>
-        <td>₹ ${r.bhav}</td>
-        <td>${r.date}</td>
+        <td>${r.mandi}</td><td>${r.fasal}</td>
+        <td>₹ ${r.bhav}</td><td>${r.date}</td>
         <td><span class="badge ${r.trend}">${r.trend.toUpperCase()}</span></td>
-      </tr>
-    `).join("");
+      </tr>`).join("");
   }
 
   function renderTrend() {
     const byCrop = {};
-    allRows.forEach(r => {
-      if (!byCrop[r.fasal]) byCrop[r.fasal] = [];
-      byCrop[r.fasal].push(r.trend);
-    });
-
-    document.getElementById("trendList").innerHTML = Object.keys(byCrop).map(f => {
-      const counts = byCrop[f].reduce((a, t) => (a[t] = (a[t]||0)+1, a), {});
+    allRows.forEach(r => { (byCrop[r.fasal] ||= []).push(r.trend); });
+    trendList.innerHTML = Object.keys(byCrop).map(f => {
+      const counts = byCrop[f].reduce((a,t)=>(a[t]=(a[t]||0)+1,a),{});
       const main = Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0] || "stable";
       return `<div class="card">🌾 ${f} — <span class="badge ${main}">${main.toUpperCase()}</span></div>`;
     }).join("");
   }
 
-  document.getElementById("mandiFilter").addEventListener("change", renderBhav);
-  document.getElementById("fasalFilter").addEventListener("change", renderBhav);
-
-loadData();
-loadNews();
-loadWeather();
-
-setInterval(() => {
-  loadData();
-  loadNews();
-  loadWeather();
-}, 5 * 60 * 1000);
-
-
   async function loadNews() {
-  try {
-    const res = await fetch(NEWS_SHEET_URL);
-    const text = await res.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
-    const rows = json.table.rows.map(r => ({
-      date: r.c[0]?.v || "",
-      title: r.c[1]?.v || "",
-      details: r.c[2]?.v || ""
-    }));
-
-    document.getElementById("news").innerHTML = `
-      <h3>📰 Kisaan Samachaar</h3>
-      ${rows.map(n => `
-        <div class="card">
-          <strong>${n.title}</strong><br/>
-          <small>${n.date}</small>
-          <p>${n.details}</p>
-        </div>
-      `).join("")}
-    `;
-  } catch (e) {
-    document.getElementById("news").innerHTML = "<p>News load nahi ho raha 😢</p>";
-    console.error(e);
+    try {
+      const res = await fetch(NEWS_SHEET_URL);
+      const text = await res.text();
+      const json = JSON.parse(text.substr(47).slice(0, -2));
+      const rows = json.table.rows.map(r => ({
+        date: r.c[0]?.v || "",
+        title: r.c[1]?.v || "",
+        details: r.c[2]?.v || ""
+      }));
+      news.innerHTML = `<h3>📰 Kisaan Samachaar</h3>` + rows.map(n => `
+        <div class="card"><strong>${n.title}</strong><br/><small>${n.date}</small><p>${n.details}</p></div>
+      `).join("");
+    } catch (e) { news.innerHTML = "<p>News load nahi ho raha 😢</p>"; }
   }
-}
 
-async function loadWeather() {
-  try {
-    const res = await fetch(WEATHER_SHEET_URL);
-    const text = await res.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
-    const rows = json.table.rows.map(r => ({
-      date: r.c[0]?.v || "",
-      area: r.c[1]?.v || "",
-      update: r.c[2]?.v || ""
-    }));
-
-    document.getElementById("weather").innerHTML = `
-      <h3>🌦️ Mausam Samachaar</h3>
-      ${rows.map(w => `
-        <div class="card">
-          <strong>${w.area}</strong> – ${w.update}<br/>
-          <small>${w.date}</small>
-        </div>
-      `).join("")}
-    `;
-  } catch (e) {
-    document.getElementById("weather").innerHTML = "<p>Mausam data load nahi ho raha 😢</p>";
-    console.error(e);
+  async function loadWeather() {
+    try {
+      const res = await fetch(WEATHER_SHEET_URL);
+      const text = await res.text();
+      const json = JSON.parse(text.substr(47).slice(0, -2));
+      const rows = json.table.rows.map(r => ({
+        date: r.c[0]?.v || "",
+        area: r.c[1]?.v || "",
+        update: r.c[2]?.v || ""
+      }));
+      weather.innerHTML = `<h3>🌦️ Mausam Samachaar</h3>` + rows.map(w => `
+        <div class="card"><strong>${w.area}</strong> – ${w.update}<br/><small>${w.date}</small></div>
+      `).join("");
+    } catch (e) { weather.innerHTML = "<p>Mausam data load nahi ho raha 😢</p>"; }
   }
-}
 
-  setInterval(loadData, 5 * 60 * 1000);
+  mandiFilter.onchange = renderBhav;
+  fasalFilter.onchange = renderBhav;
+
+  loadData(); loadNews(); loadWeather();
+  setInterval(() => { loadData(); loadNews(); loadWeather(); }, 5 * 60 * 1000);
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
