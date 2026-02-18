@@ -1,39 +1,34 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mandi GOLD</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f4f7f8; }
-    header { background:#2ecc71; color:#fff; padding:12px; text-align:center; position:sticky; top:0; z-index:10; }
-    .container { padding:10px 10px 90px; }
-    .section { display:none; }
-    .section.active { display:block; }
-    table { width:100%; border-collapse:collapse; background:#fff; }
-    th, td { border:1px solid #ddd; padding:8px; text-align:center; font-size:13px; }
-    th { background:#2ecc71; color:#fff; }
-    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; justify-content:center; }
-    select, button { padding:8px; font-size:13px; }
-    .card { background:#fff; padding:10px; margin:8px 0; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
-    .badge { padding:3px 6px; border-radius:4px; color:#fff; font-size:11px; }
-    .teji { background:#27ae60; }
-    .mandi { background:#e74c3c; }
-    .stable { background:#f39c12; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mandi GOLD</title>
+<style>
+  body{font-family:Arial, sans-serif;margin:0;background:#f4f7f8;}
+  header{background:#0f9d58;color:#fff;padding:12px;text-align:center;position:sticky;top:0;z-index:10;}
+  .container{padding:10px 10px 90px;}
+  .section{display:none;}
+  .section.active{display:block;}
+  table{width:100%;border-collapse:collapse;background:#fff;}
+  th,td{border:1px solid #ddd;padding:8px;font-size:13px;text-align:center;}
+  th{background:#0f9d58;color:#fff;}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;justify-content:center;}
+  select,button{padding:8px;font-size:13px;}
+  .card{background:#fff;padding:10px;margin:8px 0;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+  .badge{padding:3px 6px;border-radius:4px;color:#fff;font-size:11px;}
+  .teji{background:#27ae60;}
+  .mandi{background:#e74c3c;}
+  .stable{background:#f39c12;}
+  .headline{cursor:pointer;}
+  .detail{margin-top:6px;color:#333;display:none;}
 
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      display: flex; justify-content: space-around;
-      background: #0f9d58; padding: 6px 0; z-index: 9999;
-    }
-    .bottom-nav button {
-      background: none; border: none; color: white;
-      text-align: center; font-size: 12px; cursor: pointer;
-    }
-    .bottom-nav .icon { font-size: 22px; line-height: 1; }
-    .bottom-nav .label { font-size: 11px; }
-    .bottom-nav button.active { color: #ffe082; font-weight: bold; }
-  </style>
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#0f9d58;padding:6px 0;z-index:9999;}
+  .bottom-nav button{background:none;border:none;color:white;text-align:center;font-size:12px;cursor:pointer;}
+  .bottom-nav .icon{font-size:22px;line-height:1;}
+  .bottom-nav .label{font-size:11px;}
+  .bottom-nav button.active{color:#ffe082;font-weight:bold;}
+</style>
 </head>
 <body>
 
@@ -49,143 +44,119 @@
       <button onclick="loadData()">🔄 Refresh</button>
     </div>
     <table>
-      <thead>
-        <tr><th>Mandi</th><th>Fasal</th><th>Bhav (₹)</th><th>Date</th><th>Trend</th></tr>
-      </thead>
+      <thead><tr><th>Mandi</th><th>Fasal</th><th>Bhav (₹)</th><th>Date</th><th>Trend</th></tr></thead>
       <tbody id="bhavTable"></tbody>
     </table>
   </div>
 
   <div id="news" class="section"></div>
+
   <div id="trend" class="section">
     <h3>📈 Teji–Mandi Report</h3>
     <div id="trendList"></div>
   </div>
-  <div id="weather" class="section"></div>
 
-  <div id="about" class="section">
-    <h3>ℹ️ About</h3>
-    <div class="card">Mandi GOLD – Kisano aur vyapariyon ke liye mandi bhav, news aur mausam updates.</div>
-  </div>
+  <div id="weather" class="section"></div>
 
 </div>
 
 <div class="bottom-nav">
-  <button class="active" onclick="showSection('bhav', this)">
-    <div class="icon">🌾</div><div class="label">Bhav</div>
-  </button>
-  <button onclick="showSection('news', this)">
-    <div class="icon">📰</div><div class="label">News</div>
-  </button>
-  <button onclick="showSection('trend', this)">
-    <div class="icon">📈</div><div class="label">Teji/Mandi</div>
-  </button>
-  <button onclick="showSection('weather', this)">
-    <div class="icon">🌦️</div><div class="label">Mausam</div>
-  </button>
+  <button class="active" onclick="showSection('bhav', this)"><div class="icon">🌾</div><div class="label">Bhav</div></button>
+  <button onclick="showSection('news', this)"><div class="icon">📰</div><div class="label">News</div></button>
+  <button onclick="showSection('trend', this)"><div class="icon">📈</div><div class="label">Teji/Mandi</div></button>
+  <button onclick="showSection('weather', this)"><div class="icon">🌦️</div><div class="label">Mausam</div></button>
 </div>
 
 <script>
-  const PRICE_SHEET_URL   = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Bhav";
-  const NEWS_SHEET_URL    = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=News";
-  const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Weather";
+const PRICE_SHEET_URL   = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Bhav";
+const NEWS_SHEET_URL    = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=News";
+const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Weather";
 
-  let allRows = [];
+let allRows=[];
 
-  function showSection(id, btn) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
+function showSection(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
-  async function loadData() {
-    try {
-      const res = await fetch(PRICE_SHEET_URL);
-      const text = await res.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      allRows = json.table.rows.map(r => ({
-        mandi: r.c[0]?.v || "",
-        fasal: r.c[1]?.v || "",
-        bhav: r.c[2]?.v || "",
-        date: r.c[3]?.v || "",
-        trend: (r.c[4]?.v || "stable").toLowerCase()
-      }));
-      populateFilters();
-      renderBhav();
-      renderTrend();
-    } catch (e) {
-      alert("Bhav data load nahi ho raha 😢");
-      console.error(e);
-    }
-  }
+async function loadData(){
+  try{
+    const res=await fetch(PRICE_SHEET_URL);
+    const text=await res.text();
+    const json=JSON.parse(text.substr(47).slice(0,-2));
+    allRows=json.table.rows.map(r=>({
+      mandi:r.c[0]?.v||"",
+      fasal:r.c[1]?.v||"",
+      bhav:r.c[2]?.v||"",
+      date:r.c[3]?.v||"",
+      trend:(r.c[4]?.v||"stable").toLowerCase()
+    }));
+    populateFilters(); renderBhav(); renderTrend();
+  }catch(e){alert("Bhav data load nahi ho raha 😢");console.error(e);}
+}
 
-  function populateFilters() {
-    const mandiSet = [...new Set(allRows.map(r => r.mandi))];
-    const fasalSet = [...new Set(allRows.map(r => r.fasal))];
-    mandiFilter.innerHTML = '<option value="">Sab Mandi</option>' + mandiSet.map(m => `<option>${m}</option>`).join("");
-    fasalFilter.innerHTML = '<option value="">Sab Fasal</option>' + fasalSet.map(f => `<option>${f}</option>`).join("");
-  }
+function populateFilters(){
+  mandiFilter.innerHTML='<option value="">Sab Mandi</option>'+[...new Set(allRows.map(r=>r.mandi))].map(m=>`<option>${m}</option>`).join("");
+  fasalFilter.innerHTML='<option value="">Sab Fasal</option>'+[...new Set(allRows.map(r=>r.fasal))].map(f=>`<option>${f}</option>`).join("");
+}
 
-  function renderBhav() {
-    const mandi = mandiFilter.value;
-    const fasal = fasalFilter.value;
-    const rows = allRows.filter(r => (!mandi || r.mandi===mandi) && (!fasal || r.fasal===fasal));
-    bhavTable.innerHTML = rows.map(r => `
-      <tr>
-        <td>${r.mandi}</td><td>${r.fasal}</td>
-        <td>₹ ${r.bhav}</td><td>${r.date}</td>
-        <td><span class="badge ${r.trend}">${r.trend.toUpperCase()}</span></td>
-      </tr>`).join("");
-  }
+function renderBhav(){
+  const mandi=mandiFilter.value, fasal=fasalFilter.value;
+  bhavTable.innerHTML=allRows.filter(r=>(!mandi||r.mandi===mandi)&&(!fasal||r.fasal===fasal))
+  .map(r=>`<tr><td>${r.mandi}</td><td>${r.fasal}</td><td>₹ ${r.bhav}</td><td>${r.date}</td>
+  <td><span class="badge ${r.trend}">${r.trend.toUpperCase()}</span></td></tr>`).join("");
+}
 
-  function renderTrend() {
-    const byCrop = {};
-    allRows.forEach(r => { (byCrop[r.fasal] ||= []).push(r.trend); });
-    trendList.innerHTML = Object.keys(byCrop).map(f => {
-      const counts = byCrop[f].reduce((a,t)=>(a[t]=(a[t]||0)+1,a),{});
-      const main = Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0] || "stable";
-      return `<div class="card">🌾 ${f} — <span class="badge ${main}">${main.toUpperCase()}</span></div>`;
-    }).join("");
-  }
+function renderTrend(){
+  const byCrop={};
+  allRows.forEach(r=>(byCrop[r.fasal]??=[]).push(r.trend));
+  trendList.innerHTML=Object.keys(byCrop).map(f=>{
+    const counts=byCrop[f].reduce((a,t)=>(a[t]=(a[t]||0)+1,a),{});
+    const main=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||"stable";
+    return `<div class="card">🌾 ${f} — <span class="badge ${main}">${main.toUpperCase()}</span></div>`;
+  }).join("");
+}
 
-  async function loadNews() {
-    try {
-      const res = await fetch(NEWS_SHEET_URL);
-      const text = await res.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      const rows = json.table.rows.map(r => ({
-        date: r.c[0]?.v || "",
-        title: r.c[1]?.v || "",
-        details: r.c[2]?.v || ""
-      }));
-      news.innerHTML = `<h3>📰 Kisaan Samachaar</h3>` + rows.map(n => `
-        <div class="card"><strong>${n.title}</strong><br/><small>${n.date}</small><p>${n.details}</p></div>
-      `).join("");
-    } catch (e) { news.innerHTML = "<p>News load nahi ho raha 😢</p>"; }
-  }
+function toggleDetail(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==="none"?"block":"none";
+}
 
-  async function loadWeather() {
-    try {
-      const res = await fetch(WEATHER_SHEET_URL);
-      const text = await res.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      const rows = json.table.rows.map(r => ({
-        date: r.c[0]?.v || "",
-        area: r.c[1]?.v || "",
-        update: r.c[2]?.v || ""
-      }));
-      weather.innerHTML = `<h3>🌦️ Mausam Samachaar</h3>` + rows.map(w => `
-        <div class="card"><strong>${w.area}</strong> – ${w.update}<br/><small>${w.date}</small></div>
-      `).join("");
-    } catch (e) { weather.innerHTML = "<p>Mausam data load nahi ho raha 😢</p>"; }
-  }
+async function loadNews(){
+  try{
+    const res=await fetch(NEWS_SHEET_URL);
+    const text=await res.text();
+    const json=JSON.parse(text.substr(47).slice(0,-2));
+    const rows=json.table.rows.map(r=>({date:r.c[0]?.v||"",title:r.c[1]?.v||"",details:r.c[2]?.v||""}));
+    news.innerHTML='<h3>📰 Kisaan Samachaar</h3>'+rows.map((n,i)=>`
+      <div class="card headline" onclick="toggleDetail('news_${i}')">
+        <strong>👉 ${n.title}</strong>
+        <div id="news_${i}" class="detail"><small>${n.date}</small><p>${n.details}</p></div>
+      </div>`).join("");
+  }catch(e){news.innerHTML="<p>News load nahi ho raha 😢</p>";}
+}
 
-  mandiFilter.onchange = renderBhav;
-  fasalFilter.onchange = renderBhav;
+async function loadWeather(){
+  try{
+    const res=await fetch(WEATHER_SHEET_URL);
+    const text=await res.text();
+    const json=JSON.parse(text.substr(47).slice(0,-2));
+    const rows=json.table.rows.map(r=>({date:r.c[0]?.v||"",area:r.c[1]?.v||"",update:r.c[2]?.v||""}));
+    weather.innerHTML='<h3>🌦️ Mausam Samachaar</h3>'+rows.map((w,i)=>`
+      <div class="card headline" onclick="toggleDetail('weather_${i}')">
+        <strong>👉 ${w.area}</strong>
+        <div id="weather_${i}" class="detail"><small>${w.date}</small><p>${w.update}</p></div>
+      </div>`).join("");
+  }catch(e){weather.innerHTML="<p>Mausam data load nahi ho raha 😢</p>";}
+}
 
-  loadData(); loadNews(); loadWeather();
-  setInterval(() => { loadData(); loadNews(); loadWeather(); }, 5 * 60 * 1000);
+mandiFilter.onchange=renderBhav;
+fasalFilter.onchange=renderBhav;
+
+loadData(); loadNews(); loadWeather();
+setInterval(()=>{loadData(); loadNews(); loadWeather();}, 5*60*1000);
 </script>
 
 </body>
