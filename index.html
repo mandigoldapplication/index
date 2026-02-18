@@ -79,13 +79,25 @@
 
 </div>
 
-<nav>
-  <button class="active" onclick="showSection('bhav', this)">Bhav</button>
-  <button onclick="showSection('news', this)">News</button>
-  <button onclick="showSection('trend', this)">Teji/Mandi</button>
-  <button onclick="showSection('weather', this)">Mausam</button>
-  <button onclick="showSection('about', this)">About</button>
-</nav>
+<div class="bottom-nav">
+  <button onclick="showTab('bhav')">
+    <div class="icon">🌾</div>
+    <div class="label">Bhav</div>
+  </button>
+  <button onclick="showTab('news')">
+    <div class="icon">📰</div>
+    <div class="label">News</div>
+  </button>
+  <button onclick="showTab('trend')">
+    <div class="icon">📈</div>
+    <div class="label">Teji/Mandi</div>
+  </button>
+  <button onclick="showTab('weather')">
+    <div class="icon">🌦️</div>
+    <div class="label">Mausam</div>
+  </button>
+</div>
+
 
 <script>
   const sheetURL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json";  
@@ -176,4 +188,5 @@
 
 </body>
 </html>
+
 
