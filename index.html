@@ -157,25 +157,26 @@ const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0
   }
 
   async function loadData() {
-    try {
-      const res = await fetch(sheetURL);
-      const text = await res.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      allRows = json.table.rows.map(r => ({
-        mandi: r.c[0]?.v || "",
-        fasal: r.c[1]?.v || "",
-        bhav: r.c[2]?.v || "",
-        date: r.c[3]?.v || "",
-        trend: (r.c[4]?.v || "Stable").toLowerCase()
-      }));
-      populateFilters();
-      renderBhav();
-      renderTrend();
-    } catch (e) {
-      alert("Data load nahi ho raha 😢");
-      console.error(e);
-    }
+  try {
+    const res = await fetch(PRICE_SHEET_URL);
+    const text = await res.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    allRows = json.table.rows.map(r => ({
+      mandi: r.c[0]?.v || "",
+      fasal: r.c[1]?.v || "",
+      bhav: r.c[2]?.v || "",
+      date: r.c[3]?.v || "",
+      trend: (r.c[4]?.v || "stable").toLowerCase()
+    }));
+    populateFilters();
+    renderBhav();
+    renderTrend();
+  } catch (e) {
+    alert("Bhav data load nahi ho raha 😢");
+    console.error(e);
   }
+}
+
 
   function populateFilters() {
     const mandiSet = [...new Set(allRows.map(r => r.mandi))];
@@ -234,6 +235,7 @@ const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0
 
 </body>
 </html>
+
 
 
 
