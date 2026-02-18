@@ -94,9 +94,7 @@
   <!-- Kisaan Samachaar -->
   <div id="news" class="section">
     <h3>📰 Kisaan Samachaar</h3>
-    <div class="card">✔️ Sarkar ne gehu MSP me vriddhi ki</div>
-    <div class="card">✔️ Soybean ki maang badhi, bhav me tezi</div>
-    <div class="card">✔️ Aane wale hafton me mandi chhutti rahegi</div>
+
   </div>
 
   <!-- Teji Mandi Report -->
@@ -108,9 +106,7 @@
   <!-- Mausam Samachaar -->
   <div id="weather" class="section">
     <h3>🌦️ Mausam Samachaar</h3>
-    <div class="card">🌤️ Aaj MP ke kai zilon me halki barish sambhav</div>
-    <div class="card">🌬️ Tez hawa chal sakti hai, faslon ko dhyan rakhein</div>
-    <div class="card">🌡️ Tapmaan 28–32°C rahega</div>
+   
   </div>
 
   <!-- About -->
@@ -229,12 +225,76 @@ const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0
   document.getElementById("mandiFilter").addEventListener("change", renderBhav);
   document.getElementById("fasalFilter").addEventListener("change", renderBhav);
 
+loadData();
+loadNews();
+loadWeather();
+
+setInterval(() => {
   loadData();
+  loadNews();
+  loadWeather();
+}, 5 * 60 * 1000);
+
+
+  async function loadNews() {
+  try {
+    const res = await fetch(NEWS_SHEET_URL);
+    const text = await res.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    const rows = json.table.rows.map(r => ({
+      date: r.c[0]?.v || "",
+      title: r.c[1]?.v || "",
+      details: r.c[2]?.v || ""
+    }));
+
+    document.getElementById("news").innerHTML = `
+      <h3>📰 Kisaan Samachaar</h3>
+      ${rows.map(n => `
+        <div class="card">
+          <strong>${n.title}</strong><br/>
+          <small>${n.date}</small>
+          <p>${n.details}</p>
+        </div>
+      `).join("")}
+    `;
+  } catch (e) {
+    document.getElementById("news").innerHTML = "<p>News load nahi ho raha 😢</p>";
+    console.error(e);
+  }
+}
+
+async function loadWeather() {
+  try {
+    const res = await fetch(WEATHER_SHEET_URL);
+    const text = await res.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    const rows = json.table.rows.map(r => ({
+      date: r.c[0]?.v || "",
+      area: r.c[1]?.v || "",
+      update: r.c[2]?.v || ""
+    }));
+
+    document.getElementById("weather").innerHTML = `
+      <h3>🌦️ Mausam Samachaar</h3>
+      ${rows.map(w => `
+        <div class="card">
+          <strong>${w.area}</strong> – ${w.update}<br/>
+          <small>${w.date}</small>
+        </div>
+      `).join("")}
+    `;
+  } catch (e) {
+    document.getElementById("weather").innerHTML = "<p>Mausam data load nahi ho raha 😢</p>";
+    console.error(e);
+  }
+}
+
   setInterval(loadData, 5 * 60 * 1000);
 </script>
 
 </body>
 </html>
+
 
 
 
