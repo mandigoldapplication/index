@@ -24,11 +24,11 @@
   .detail{margin-top:6px;color:#333;display:none;}
   .video-card{display:flex;gap:10px;align-items:center;cursor:pointer;}
   .video-card img{width:110px;height:70px;object-fit:cover;border-radius:6px;}
-  .player iframe{width:100%;height:220px;border-radius:8px;border:none;margin-top:10px;}
+  iframe{width:100%;height:220px;border-radius:8px;border:none;margin-top:10px;}
 
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#0f9d58;padding:6px 0;z-index:9999;}
   .bottom-nav button{background:none;border:none;color:white;text-align:center;font-size:12px;cursor:pointer;}
-  .bottom-nav .icon{font-size:22px;line-height:1;}
+  .bottom-nav .icon{font-size:22px;}
   .bottom-nav .label{font-size:11px;}
   .bottom-nav button.active{color:#ffe082;font-weight:bold;}
 </style>
@@ -41,42 +41,35 @@
 
   <div id="bhav" class="section active">
     <h3>📊 Mandi ke Bhav</h3>
-    <div class="controls">
-      <select id="mandiFilter"><option value="">Sab Mandi</option></select>
-      <select id="fasalFilter"><option value="">Sab Fasal</option></select>
-      <button onclick="loadData()">🔄 Refresh</button>
-    </div>
     <table>
-      <thead><tr><th>Mandi</th><th>Fasal</th><th>Bhav (₹)</th><th>Date</th><th>Trend</th></tr></thead>
+      <thead><tr><th>Mandi</th><th>Fasal</th><th>Bhav (₹)</th><th>Date</th></tr></thead>
       <tbody id="bhavTable"></tbody>
     </table>
   </div>
 
   <div id="news" class="section"></div>
-  <div id="trend" class="section"><h3>📈 Teji–Mandi Report</h3><div id="trendList"></div></div>
   <div id="weather" class="section"></div>
 
   <div id="video" class="section">
     <h3>🎥 Video</h3>
     <div id="videoList"></div>
-    <div id="videoPlayer" class="player"></div>
   </div>
 
 </div>
 
 <div class="bottom-nav">
-  <button class="active" onclick="showSection('bhav', this)"><div class="icon">🌾</div><div class="label">Bhav</div></button>
-  <button onclick="showSection('news', this)"><div class="icon">📰</div><div class="label">News</div></button>
-  <button onclick="showSection('trend', this)"><div class="icon">📈</div><div class="label">Teji/Mandi</div></button>
-  <button onclick="showSection('weather', this)"><div class="icon">🌦️</div><div class="label">Mausam</div></button>
-  <button onclick="showSection('video', this)"><div class="icon">🎥</div><div class="label">Video</div></button>
+  <button class="active" onclick="showSection('bhav', this)">🌾<div class="label">Bhav</div></button>
+  <button onclick="showSection('news', this)">📰<div class="label">News</div></button>
+  <button onclick="showSection('weather', this)">🌦️<div class="label">Mausam</div></button>
+  <button onclick="showSection('video', this)">🎥<div class="label">Video</div></button>
 </div>
-
+  
 <script>
-const PRICE_SHEET_URL   = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Bhav";
-const NEWS_SHEET_URL    = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=News";
-const WEATHER_SHEET_URL = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Weather";
-const VIDEO_SHEET_URL   = "https://docs.google.com/spreadsheets/d/1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE/gviz/tq?tqx=out:json&sheet=Video";
+const SHEET_ID = "YOUR_SHEET_ID";
+const PRICE_SHEET_URL   = `https://docs.google.com/spreadsheets/d/${1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE}/gviz/tq?tqx=out:json&sheet=Bhav`;
+const NEWS_SHEET_URL    = `https://docs.google.com/spreadsheets/d/${1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE}/gviz/tq?tqx=out:json&sheet=News`;
+const WEATHER_SHEET_URL = `https://docs.google.com/spreadsheets/d/${1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE}/gviz/tq?tqx=out:json&sheet=Weather`;
+const VIDEO_SHEET_URL   = `https://docs.google.com/spreadsheets/d/${1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE}/gviz/tq?tqx=out:json&sheet=Video`;
 
 function showSection(id, btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -85,43 +78,83 @@ function showSection(id, btn){
   btn.classList.add('active');
 }
 
-function getYouTubeId(url){
-  try{
-    if(url.includes("youtu.be")) return url.split("/").pop();
-    if(url.includes("watch?v=")) return new URL(url).searchParams.get("v");
-  }catch(e){}
+function parseSheet(text){
+  return JSON.parse(text.substr(47).slice(0,-2)).table.rows;
+}
+
+async function loadBhav(){
+  const res = await fetch(PRICE_SHEET_URL);
+  const rows = parseSheet(await res.text()).reverse(); // latest on top
+  bhavTable.innerHTML = rows.map(r=>`
+    <tr>
+      <td>${r.c[0]?.v||""}</td>
+      <td>${r.c[1]?.v||""}</td>
+      <td>${r.c[2]?.v||""}</td>
+      <td>${r.c[3]?.v||""}</td>
+    </tr>`).join("");
+}
+
+async function loadNews(){
+  const res = await fetch(NEWS_SHEET_URL);
+  const rows = parseSheet(await res.text()).reverse();
+  news.innerHTML = "<h3>📰 Kisaan Samachaar</h3>" + rows.map((r,i)=>`
+    <div class="card headline" onclick="toggle('n${i}')">
+      <strong>${r.c[1]?.v||""}</strong>
+      <div id="n${i}" class="detail">
+        <small>${r.c[0]?.v||""}</small>
+        <p>${r.c[2]?.v||""}</p>
+      </div>
+    </div>`).join("");
+}
+
+async function loadWeather(){
+  const res = await fetch(WEATHER_SHEET_URL);
+  const rows = parseSheet(await res.text()).reverse();
+  weather.innerHTML = "<h3>🌦️ Mausam Update</h3>" + rows.map((r,i)=>`
+    <div class="card headline" onclick="toggle('w${i}')">
+      <strong>${r.c[1]?.v||""}</strong>
+      <div id="w${i}" class="detail">
+        <small>${r.c[0]?.v||""}</small>
+        <p>${r.c[2]?.v||""}</p>
+      </div>
+    </div>`).join("");
+}
+
+function ytId(url){
+  if(url.includes("watch?v=")) return new URL(url).searchParams.get("v");
+  if(url.includes("youtu.be")) return url.split("/").pop();
   return "";
 }
 
-function getYouTubeThumb(url){
-  const id = getYouTubeId(url);
-  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : "";
-}
-
-function getEmbedURL(url){
-  const id = getYouTubeId(url);
-  return id ? `https://www.youtube.com/embed/${id}` : url;
-}
-
 async function loadVideos(){
-  try{
-    const res=await fetch(VIDEO_SHEET_URL);
-    const text=await res.text();
-    const json=JSON.parse(text.substr(47).slice(0,-2));
-    const rows=json.table.rows.map(r=>({title:r.c[1]?.v||"",url:r.c[2]?.v||""}));
-    videoList.innerHTML=rows.map(v=>`
-      <div class="card video-card" onclick="playVideo('${getEmbedURL(v.url)}')">
-        <img src="${getYouTubeThumb(v.url)}">
-        <div><strong>${v.title}</strong></div>
-      </div>`).join("");
-  }catch(e){videoList.innerHTML="<p>Video load nahi ho raha 😢</p>";}
+  const res = await fetch(VIDEO_SHEET_URL);
+  const rows = parseSheet(await res.text()).reverse();
+  videoList.innerHTML = rows.map(r=>{
+    const id = ytId(r.c[2]?.v||"");
+    return `
+    <div class="card">
+      <div class="video-card" onclick="playHere(this,'${id}')">
+        <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+        <strong>${r.c[1]?.v||""}</strong>
+      </div>
+      <div class="player"></div>
+    </div>`;
+  }).join("");
 }
 
-function playVideo(url){
-  videoPlayer.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+function playHere(el, id){
+  const player = el.parentElement.querySelector(".player");
+  player.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>`;
 }
 
-/* Baaki functions same rahenge (Bhav, News, Weather, Trend) */
+function toggle(id){
+  const el = document.getElementById(id);
+  el.style.display = el.style.display==="block" ? "none" : "block";
+}
+
+loadBhav(); 
+loadNews(); 
+loadWeather(); 
 loadVideos();
 </script>
 
