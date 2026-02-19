@@ -9,11 +9,11 @@
 <style>
 :root{
   --bg:#f4f4f4; --card:#ffffff; --text:#111; --muted:#444;
-  --green:#0f9d58; --border:#ddd;
+  --green:#0f9d58; --border:#ddd; --gold:#FFD54A;
 }
 body.dark{
   --bg:#0d0f12; --card:#111; --text:#fff; --muted:#bfc6cc;
-  --green:#0f9d58; --border:#2a2f36;
+  --green:#0f9d58; --border:#2a2f36; --gold:#FFD54A;
 }
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);}
 
@@ -31,8 +31,7 @@ header{
 }
 .brand{font-weight:900;letter-spacing:.5px;font-size:22px;line-height:1; white-space:nowrap;}
 .brand .mandi{color:#fff;}
-.brand .gold{color:#FFD54A;text-shadow:0 1px 0 rgba(0,0,0,.3);}
-
+.brand .gold{color:var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.3);}
 .actions{display:flex;gap:8px;align-items:center;}
 .btnSmall{
   background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
@@ -43,7 +42,30 @@ header{
 .tab{display:none;padding:12px;padding-bottom:96px;}
 .tab.active{display:block;}
 
-.filters{background:var(--card);border:1px solid var(--border);padding:10px;border-radius:10px;margin:10px 0;}
+/* ✅ Premium section card (NO soft tint backgrounds) */
+.section{
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--card);
+  margin:14px 0;
+  overflow:hidden;
+}
+.sectionHead{
+  padding:10px 12px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#fff;
+}
+.gradA{background:linear-gradient(90deg, #0f9d58, #1dbf73);}
+.gradB{background:linear-gradient(90deg, #111827, #374151);}
+.gradC{background:linear-gradient(90deg, #d97706, #f59e0b);}
+.gradD{background:linear-gradient(90deg, #2563eb, #60a5fa);}
+.gradE{background:linear-gradient(90deg, #7c3aed, #a78bfa);}
+.sectionBody{padding:12px;}
+
+.filters{background:var(--card);border:1px solid var(--border);padding:10px;border-radius:12px;margin:10px 0;}
 .seg{display:flex;gap:8px;margin-bottom:10px;}
 .seg button{
   flex:1; padding:10px; border-radius:10px; cursor:pointer;
@@ -56,15 +78,17 @@ select{
   background:var(--bg);color:var(--text);font-weight:700;
 }
 
+/* table */
 table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;}
-th,td{border:1px solid var(--border);padding:7px;font-size:12px;text-align:center;}
-th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);}
+th,td{border:1px solid var(--border);padding:9px;font-size:13.5px;text-align:center;}
+td{font-weight:600;}
+th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);font-weight:800;}
 
 .card{background:var(--card);padding:10px;border-radius:10px;margin:10px 0;border:1px solid var(--border);}
 .row{display:flex;gap:10px;align-items:center;cursor:pointer;}
 .row img{width:30%;height:80px;object-fit:cover;border-radius:8px;background:#ccc;}
-.row .text{width:70%;font-weight:bold}
-.detail{display:none;font-size:13px;margin-top:8px;color:var(--muted);white-space:pre-wrap;}
+.row .text{width:70%;font-weight:700;font-size:14px}
+.detail{display:none;font-size:14px;margin-top:8px;color:var(--muted);white-space:pre-wrap;font-weight:600;line-height:1.5;}
 
 .bottom{
   position:fixed;bottom:0;left:0;right:0;
@@ -79,7 +103,7 @@ th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);}
 .bottom .icon{font-size:22px;line-height:1;}
 .bottom button.active{opacity:1;color:#ffe082;font-weight:900;}
 
-.trendLink{cursor:pointer;text-decoration:underline;font-weight:900;}
+.trendLink{cursor:pointer;text-decoration:underline;font-weight:800;}
 
 .modal{
   position:fixed; inset:0; background:rgba(0,0,0,.55);
@@ -108,7 +132,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   display:none; font-weight:900; box-shadow:0 6px 20px rgba(0,0,0,.2);
 }
 
-/* ✅ Ticker */
+/* ticker */
 .tickerWrap{
   margin:10px 0 6px 0;
   border:1px solid var(--border);
@@ -120,32 +144,48 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 }
 .tickerLabel{
   background:var(--green);
-  color:#fff;
+  color:var(--gold);
   font-weight:900;
   padding:10px 12px;
   white-space:nowrap;
 }
-.marquee{
-  position:relative;
-  overflow:hidden;
-  width:100%;
-  padding:10px 0;
+.marquee{position:relative;overflow:hidden;width:100%;padding:10px 0;}
+.track{display:inline-block;white-space:nowrap;will-change:transform;animation: scroll 18s linear infinite;}
+.track span{margin:0 14px;font-weight:700;color:var(--text);}
+@keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* stats */
+.statsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.statCard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;}
+.statNum{font-size:20px;font-weight:900;line-height:1.2;}
+.statLabel{font-size:12px;color:var(--muted);font-weight:700;margin-top:4px;}
+
+/* socials */
+.socialGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.socialBtn{
+  display:flex;align-items:center;justify-content:center;
+  padding:10px;border-radius:10px;text-decoration:none;
+  font-weight:900;color:#fff;
 }
-.track{
-  display:inline-block;
-  white-space:nowrap;
-  will-change:transform;
-  animation: scroll 18s linear infinite;
-}
-.track span{
-  margin:0 14px;
+.fb{background:#1877F2;}
+.wa{background:#25D366;}
+.yt{background:#FF0000;}
+.tg{background:#229ED9;}
+
+/* ✅ Total rows found badge */
+.rowsBadge{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:var(--bg);
+  border:1px dashed var(--border);
+  border-radius:12px;
+  padding:10px 12px;
+  margin:10px 0 0 0;
   font-weight:800;
-  color:var(--text);
 }
-@keyframes scroll{
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
+.rowsBadge b{font-weight:900;}
 </style>
 </head>
 
@@ -182,12 +222,10 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
       <div style="font-weight:900;font-size:16px;" id="trendTitle">📊 Trend</div>
       <button class="closeBtn" onclick="closeTrend()">✖ Close</button>
     </div>
-
     <div class="card" style="margin:0 0 10px 0;">
       <div style="font-weight:900;margin-bottom:6px;">Last 7 Days (Modal)</div>
       <canvas id="chart7" height="120"></canvas>
     </div>
-
     <div class="card" style="margin:0;">
       <div style="font-weight:900;margin-bottom:6px;">Last 30 Days (Modal)</div>
       <canvas id="chart30" height="120"></canvas>
@@ -207,15 +245,15 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 </div>
 
 <script>
-/* ========== THEME ========== */
-document.body.classList.remove("dark"); // default LIGHT
+/* THEME */
+document.body.classList.remove("dark");
 if(localStorage.theme === "dark") document.body.classList.add("dark");
 function toggleTheme(){
   document.body.classList.toggle("dark");
   localStorage.theme = document.body.classList.contains("dark") ? "dark" : "light";
 }
 
-/* ========== SPLASH (only first time) ========== */
+/* SPLASH */
 (function(){
   const seen = localStorage.getItem("mg_splash_seen");
   const s = document.getElementById("splash");
@@ -225,10 +263,10 @@ function toggleTheme(){
   }
 })();
 
-/* ========== CONFIG ========== */
+/* CONFIG */
 const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 
-/* ========== TABS ========== */
+/* TABS */
 function closeVideo(){
   document.getElementById("videoFrameWrap").innerHTML = "";
   document.getElementById("videoModal").style.display = "none";
@@ -247,13 +285,13 @@ function openTab(t){
 }
 if(localStorage.tab) openTab(localStorage.tab); else openTab("bhav");
 
-/* ========== LOAD ========== */
+/* LOAD */
 async function load(sheet){
   const r = await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`);
   return r.json();
 }
 
-/* ========== HELPERS ========== */
+/* HELPERS */
 function unique(arr){return [...new Set(arr.filter(x=>x!==undefined && x!==null && x!==""))];}
 function toISO(dateStr){
   const d=new Date((dateStr||"").toString().trim());
@@ -292,70 +330,35 @@ function openExclusive(group, id){
   if(!t) return;
   t.style.display = (t.style.display==="block") ? "none" : "block";
 }
+function escapeHtml(str){
+  return (str||"").toString()
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
-/* ========== TOAST + NOTIFICATIONS (fixed) ========== */
+/* TOAST + ALERTS (in-app only) */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg; t.style.display="block";
   setTimeout(()=>t.style.display="none", 4500);
 }
-
-// promise+callback compatible permission
-function requestPermissionCompat(){
-  return new Promise((resolve, reject)=>{
-    try{
-      const fn = Notification.requestPermission;
-      if(fn.length === 1){
-        // old callback style
-        Notification.requestPermission((p)=>resolve(p));
-      }else{
-        // promise style
-        Notification.requestPermission().then(resolve).catch(reject);
-      }
-    }catch(e){ reject(e); }
-  });
+function enableAlerts(){
+  localStorage.setItem("mg_alerts_enabled","1");
+  showToast("✅ Alerts ON (In-app)");
 }
-
-async function enableAlerts(){
-  if(!("Notification" in window)){
-    showToast("इस browser में notifications support नहीं है.");
-    return;
-  }
-  if(!window.isSecureContext){
-    showToast("Notifications के लिए HTTPS जरूरी है (secure context).");
-    return;
-  }
-  try{
-    const p = await requestPermissionCompat();
-    if(p==="granted"){
-      localStorage.setItem("mg_alerts_enabled","1");
-      showToast("✅ Alerts ON हो गए!");
-      new Notification("मंडी GOLD", { body: "Alerts ON ✅ अब नए भाव पर notification आएगा." });
-    }else if(p==="denied"){
-      localStorage.setItem("mg_alerts_enabled","0");
-      showToast("Permission DENIED (browser settings से allow करें).");
-    }else{
-      showToast("Permission dismissed / default.");
-    }
-  }catch(e){
-    showToast("Permission error: " + (e?.message || e));
-  }
-}
-
 function fireBhavUpdateAlert(){
-  const msg="नये भाव अपडेट हो गई हैं, अपनी मंडी के नए 🌾 भाव जानिए अभी";
-  showToast(msg);
-
   const enabled = localStorage.getItem("mg_alerts_enabled")==="1";
-  if(enabled && "Notification" in window && Notification.permission==="granted"){
-    try{ new Notification("मंडी GOLD", { body: msg }); }catch(e){}
+  const msg="नये भाव अपडेट हो गई हैं, अपनी मंडी के नए 🌾 भाव जानिए अभी";
+  if(enabled){
+    showToast("🔔 " + msg);
+    if(navigator.vibrate) navigator.vibrate([120, 60, 120]);
   }
 }
 
-/* ========== TICKER (from Google Sheet: Ticker) ========== */
+/* TICKER */
 function tickerHTML(items){
   if(!items || items.length===0) return "";
-  // seamless loop: duplicate text
   const line = items.map(x=>`<span>• ${escapeHtml(x)}</span>`).join("");
   return `
     <div class="tickerWrap">
@@ -366,14 +369,26 @@ function tickerHTML(items){
     </div>
   `;
 }
-function escapeHtml(str){
-  return (str||"").toString()
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+
+/* STATS COUNTER (3 sec) */
+function animateCount(el, target){
+  if(!el) return;
+  let cur = 0;
+  const duration = 3000, fps = 30;
+  const totalSteps = Math.max(1, Math.floor((duration/1000)*fps));
+  const stepVal = target / totalSteps;
+
+  const timer = setInterval(()=>{
+    cur += stepVal;
+    if(cur >= target){
+      cur = target;
+      clearInterval(timer);
+    }
+    el.textContent = Math.round(cur);
+  }, Math.round(1000/fps));
 }
 
-/* ========== YOUTUBE modal (unchanged) ========== */
+/* YOUTUBE */
 function ytId(url){
   if(!url) return "";
   const u=url.toString().trim();
@@ -390,7 +405,7 @@ function openVideo(id, title){
   document.getElementById("videoModal").style.display="flex";
 }
 
-/* ========== TREND CHART ========== */
+/* TREND CHART */
 let bhavAll=[];
 let chart7Inst=null, chart30Inst=null;
 
@@ -430,33 +445,75 @@ function openTrend(mandi, fasal){
   document.getElementById("trendModal").style.display="flex";
 }
 
-/* ========== BHAV UI (with ticker + selection card) ========== */
+/* ✅ Total rows found */
+function setRowsFound(n){
+  const badge = document.getElementById("rowsBadge");
+  const count = document.getElementById("rowsCount");
+  if(!badge || !count) return;
+  badge.style.display = "flex";
+  count.textContent = n;
+}
+
+/* BHAV UI */
 function bhavUI(tickerBlock){
   return `
     ${tickerBlock || ""}
 
-    <h3 style="margin-top:6px;">📊 Bhav</h3>
+    <div class="section">
+      <div class="sectionHead gradA">🌾 Bhav</div>
+      <div class="sectionBody">
 
-    <div class="filters">
-      <div class="seg">
-        <button id="btnMW" class="active" type="button">Mandi Wise</button>
-        <button id="btnFW" type="button">Fasal Wise</button>
+        <div style="font-weight:900;font-size:15px;margin-bottom:8px;">भाव जानने के लिए चयन करें</div>
+
+        <div class="filters" style="margin:0;">
+          <div class="seg">
+            <button id="btnMW" class="active" type="button">Mandi Wise</button>
+            <button id="btnFW" type="button">Fasal Wise</button>
+          </div>
+
+          <div id="mwBox" class="grid">
+            <select id="mwState"><option value="">Select State</option></select>
+            <select id="mwMandi"><option value="">Select Mandi</option></select>
+          </div>
+
+          <div id="fwBox" style="display:none;">
+            <select id="fwFasal"><option value="">Select Fasal</option></select>
+          </div>
+        </div>
+
+        <div id="selectionCard" class="card" style="display:none;font-weight:900;margin-top:10px;"></div>
+
+        <div id="rowsBadge" class="rowsBadge" style="display:none;">
+          <div>📌 Total rows found:</div>
+          <div><b id="rowsCount">0</b></div>
+        </div>
+
+        <div id="bhavTableWrap" style="margin-top:10px;"></div>
       </div>
-
-      <div id="mwBox" class="grid">
-        <select id="mwState"><option value="">Select State</option></select>
-        <select id="mwMandi"><option value="">Select Mandi</option></select>
-      </div>
-
-      <div id="fwBox" style="display:none;">
-        <select id="fwFasal"><option value="">Select Fasal</option></select>
-      </div>
-
-      <div class="small">Trend पर क्लिक → 7 days + 30 days Modal chart</div>
     </div>
 
-    <div id="selectionCard" class="card" style="display:none;font-weight:900;"></div>
-    <div id="bhavTableWrap"></div>
+    <div class="section">
+      <div class="sectionHead gradC">📊 Quick Stats</div>
+      <div class="sectionBody">
+        <div class="statsGrid">
+          <div class="statCard"><div class="statNum" id="statStates">0</div><div class="statLabel">Total States</div></div>
+          <div class="statCard"><div class="statNum" id="statMandis">0</div><div class="statLabel">Total Mandis</div></div>
+          <div class="statCard"><div class="statNum" id="statFasals">0</div><div class="statLabel">Total Fasals</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sectionHead gradD">🔗 Follow Us</div>
+      <div class="sectionBody">
+        <div class="socialGrid">
+          <a class="socialBtn fb" target="_blank" href="https://www.facebook.com/todaymandirate">Facebook</a>
+          <a class="socialBtn wa" target="_blank" href="https://whatsapp.com/channel/0029VaffzysDjiObzVBNpB3k">WhatsApp</a>
+          <a class="socialBtn yt" target="_blank" href="https://youtube.com/todaymandirate">YouTube</a>
+          <a class="socialBtn tg" target="_blank" href="https://t.me/todaymandirate">Telegram</a>
+        </div>
+      </div>
+    </div>
   `;
 }
 
@@ -468,7 +525,8 @@ function setBhavMode(m){
   document.getElementById("mwBox").style.display = (m==="mandiWise") ? "grid" : "none";
   document.getElementById("fwBox").style.display = (m==="fasalWise") ? "block" : "none";
   document.getElementById("bhavTableWrap").innerHTML="";
-  setSelectionCard(""); // hide
+  document.getElementById("rowsBadge").style.display="none";
+  setSelectionCard("");
 }
 function setSelectionCard(text){
   const c = document.getElementById("selectionCard");
@@ -483,6 +541,7 @@ function setSelectionCard(text){
 }
 
 function renderBhavTableMandiWise(rows){
+  setRowsFound(rows.length);
   const wrap=document.getElementById("bhavTableWrap");
   wrap.innerHTML = `
     <table><thead>
@@ -503,6 +562,7 @@ function renderBhavTableMandiWise(rows){
 }
 
 function renderBhavTableFasalWise(rows){
+  setRowsFound(rows.length);
   const wrap=document.getElementById("bhavTableWrap");
   wrap.innerHTML = `
     <table><thead>
@@ -522,9 +582,9 @@ function renderBhavTableFasalWise(rows){
   });
 }
 
-/* ========== INIT ========== */
+/* INIT */
 async function init(){
-  // ✅ Ticker load (Sheet: Ticker)
+  // ticker
   let tickerBlock = "";
   try{
     const t = await load("Ticker");
@@ -535,10 +595,8 @@ async function init(){
     tickerBlock = tickerHTML(items);
   }catch(e){ tickerBlock=""; }
 
-  // Bhav render
   bhav.innerHTML = bhavUI(tickerBlock);
 
-  // Bind elements
   const btnMW=document.getElementById("btnMW");
   const btnFW=document.getElementById("btnFW");
   const mwState=document.getElementById("mwState");
@@ -548,7 +606,6 @@ async function init(){
   btnMW.onclick=()=>setBhavMode("mandiWise");
   btnFW.onclick=()=>setBhavMode("fasalWise");
 
-  // Load Bhav
   const b = await load("Bhav");
   bhavAll = b.map(r=>({
     Date: getField(r,["Date","date"]),
@@ -562,31 +619,31 @@ async function init(){
     Trend: getField(r,["Trend","trend"])
   })).filter(x=>x.Date || x.Mandi || x.Fasal);
 
-  // Update detection: last row signature
-  const lastRow = (b && b.length) ? b[b.length-1] : null;
-  const sig = lastRow ? JSON.stringify(lastRow) : "";
-  const oldSig = localStorage.getItem("mg_last_bhav_sig") || "";
-  if(sig && oldSig && sig !== oldSig) fireBhavUpdateAlert();
-  if(sig) localStorage.setItem("mg_last_bhav_sig", sig);
+  // stats
+  const states = unique(bhavAll.map(r=>r.State));
+  const mandis = unique(bhavAll.map(r=>r.Mandi));
+  const fasals = unique(bhavAll.map(r=>r.Fasal));
+  animateCount(document.getElementById("statStates"), states.length);
+  animateCount(document.getElementById("statMandis"), mandis.length);
+  animateCount(document.getElementById("statFasals"), fasals.length);
 
-  // Fill dropdowns
-  unique(bhavAll.map(r=>r.State)).forEach(s=> mwState.insertAdjacentHTML("beforeend", `<option>${s}</option>`));
-  unique(bhavAll.map(r=>r.Fasal)).forEach(f=> fwFasal.insertAdjacentHTML("beforeend", `<option>${f}</option>`));
+  // fill dropdowns
+  unique(bhavAll.map(r=>r.State)).forEach(s=> mwState.insertAdjacentHTML("beforeend", `<option>${escapeHtml(s)}</option>`));
+  unique(bhavAll.map(r=>r.Fasal)).forEach(f=> fwFasal.insertAdjacentHTML("beforeend", `<option>${escapeHtml(f)}</option>`));
 
-  // State -> Mandi
   mwState.onchange=()=>{
     mwMandi.innerHTML=`<option value="">Select Mandi</option>`;
     const s=mwState.value;
     unique(bhavAll.filter(r=>!s || r.State===s).map(r=>r.Mandi))
-      .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${m}</option>`));
+      .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${escapeHtml(m)}</option>`));
     document.getElementById("bhavTableWrap").innerHTML="";
+    document.getElementById("rowsBadge").style.display="none";
     setSelectionCard("");
   };
 
-  // Mandi selection
   mwMandi.onchange=()=>{
     const s=mwState.value, m=mwMandi.value;
-    if(!m){ document.getElementById("bhavTableWrap").innerHTML=""; setSelectionCard(""); return; }
+    if(!m){ document.getElementById("bhavTableWrap").innerHTML=""; document.getElementById("rowsBadge").style.display="none"; setSelectionCard(""); return; }
     setSelectionCard(`📍 Mandi: ${m}`);
     const rows = bhavAll
       .filter(r=>(!s || r.State===s) && r.Mandi===m)
@@ -594,10 +651,9 @@ async function init(){
     renderBhavTableMandiWise(rows);
   };
 
-  // Fasal selection
   fwFasal.onchange=()=>{
     const f=fwFasal.value;
-    if(!f){ document.getElementById("bhavTableWrap").innerHTML=""; setSelectionCard(""); return; }
+    if(!f){ document.getElementById("bhavTableWrap").innerHTML=""; document.getElementById("rowsBadge").style.display="none"; setSelectionCard(""); return; }
     setSelectionCard(`🌾 Fasal: ${f}`);
     const rows = bhavAll
       .filter(r=>r.Fasal===f)
@@ -607,64 +663,68 @@ async function init(){
 
   setBhavMode("mandiWise");
 
-  // News (exclusive)
+  // Other tabs
   const n=(await load("News")).reverse();
-  news.innerHTML = `<h3>📰 News</h3>` + n.map((x,i)=>`
-    <div class="card">
-      <div class="row" onclick="openExclusive('newsDetail','n${i}')">
-        <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
-        <div class="text">${getField(x,["Title","title"])||""}</div>
+  news.innerHTML = `<div class="section"><div class="sectionHead gradB">📰 News</div><div class="sectionBody">${
+    n.map((x,i)=>`
+      <div class="card">
+        <div class="row" onclick="openExclusive('newsDetail','n${i}')">
+          <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
+          <div class="text">${escapeHtml(getField(x,["Title","title"])||"")}</div>
+        </div>
+        <div id="n${i}" class="detail newsDetail">${escapeHtml(getField(x,["Detail","detail","Full","full"])||"")}</div>
       </div>
-      <div id="n${i}" class="detail newsDetail">${getField(x,["Detail","detail","Full","full"])||""}</div>
-    </div>
-  `).join("");
+    `).join("")
+  }</div></div>`;
 
-  // Trend posts
   const tr=(await load("Trend")).reverse();
-  trend.innerHTML = `<h3>📈 Teji/Mandi</h3>` + tr.map((x,i)=>`
-    <div class="card">
-      <div class="row" onclick="openExclusive('trendDetail','t${i}')">
-        <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
-        <div class="text">${getField(x,["Title","title"])||""}</div>
+  trend.innerHTML = `<div class="section"><div class="sectionHead gradE">📈 Teji/Mandi</div><div class="sectionBody">${
+    tr.map((x,i)=>`
+      <div class="card">
+        <div class="row" onclick="openExclusive('trendDetail','t${i}')">
+          <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
+          <div class="text">${escapeHtml(getField(x,["Title","title"])||"")}</div>
+        </div>
+        <div id="t${i}" class="detail trendDetail">${escapeHtml(getField(x,["Detail","detail","Full","full"])||"")}</div>
       </div>
-      <div id="t${i}" class="detail trendDetail">${getField(x,["Detail","detail","Full","full"])||""}</div>
-    </div>
-  `).join("");
+    `).join("")
+  }</div></div>`;
 
-  // Weather
   const w=(await load("Weather")).reverse();
-  weather.innerHTML = `<h3>🌦️ Mausam</h3>` + w.map((x,i)=>`
-    <div class="card">
-      <div class="row" onclick="openExclusive('weatherDetail','w${i}')">
-        <div class="text">${getField(x,["Title","title"])||""}</div>
+  weather.innerHTML = `<div class="section"><div class="sectionHead gradD">🌦️ Mausam</div><div class="sectionBody">${
+    w.map((x,i)=>`
+      <div class="card">
+        <div class="row" onclick="openExclusive('weatherDetail','w${i}')">
+          <div class="text">${escapeHtml(getField(x,["Title","title"])||"")}</div>
+        </div>
+        <div id="w${i}" class="detail weatherDetail">${escapeHtml(getField(x,["Detail","detail","Full","full"])||"")}</div>
       </div>
-      <div id="w${i}" class="detail weatherDetail">${getField(x,["Detail","detail","Full","full"])||""}</div>
-    </div>
-  `).join("");
+    `).join("")
+  }</div></div>`;
 
-  // Video list
   const v=(await load("Video")).reverse();
   if(!v || v.length===0){
-    video.innerHTML = `<h3>🎥 Video</h3><div class="card">Video sheet empty है.</div>`;
+    video.innerHTML = `<div class="section"><div class="sectionHead gradB">🎥 Video</div><div class="sectionBody"><div class="card">Video sheet empty है.</div></div></div>`;
   }else{
-    video.innerHTML = `<h3>🎥 Video</h3>` + v.map((x,i)=>{
-      const title = getField(x,["Title","title","Name","name"]);
-      const link  = getField(x,["VideoURL","videourl","VideoUrl","video","link","url","YouTubeLink","youtubelink"]);
-      const id = ytId(link);
-      if(!id) return `<div class="card"><b>${title||"Video"}</b><div class="small">Invalid link</div></div>`;
-      return `
-        <div class="card">
-          <div class="row" onclick="openVideo('${id}','${(title||"").replace(/'/g,"\\'")}')">
-            <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" onerror="this.style.display='none'">
-            <div class="text">${title||""}</div>
+    video.innerHTML = `<div class="section"><div class="sectionHead gradB">🎥 Video</div><div class="sectionBody">${
+      v.map((x,i)=>{
+        const title = getField(x,["Title","title","Name","name"]);
+        const link  = getField(x,["VideoURL","videourl","VideoUrl","video","link","url","YouTubeLink","youtubelink"]);
+        const id = ytId(link);
+        if(!id) return `<div class="card"><b>${escapeHtml(title||"Video")}</b><div class="small">Invalid link</div></div>`;
+        return `
+          <div class="card">
+            <div class="row" onclick="openVideo('${id}','${(title||"").replace(/'/g,"\\'")}')">
+              <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" onerror="this.style.display='none'">
+              <div class="text">${escapeHtml(title||"")}</div>
+            </div>
           </div>
-        </div>
-      `;
-    }).join("");
+        `;
+      }).join("")
+    }</div></div>`;
   }
 }
 
-/* Poll Bhav every 5 min */
 async function pollBhav(){
   setInterval(async ()=>{
     try{
