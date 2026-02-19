@@ -2,25 +2,22 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>Mandi GOLD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<title>Mandi GOLD</title>
 <style>
-:root{--bg:#0b0d10;--card:#111;--text:#fff;--green:#11a84e}
+:root{--bg:#0d0f12;--card:#111;--text:#fff;--green:#0f9d58}
 .light{--bg:#f4f4f4;--card:#fff;--text:#000}
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-header{background:var(--green);padding:12px;text-align:center;font-weight:bold}
+header{background:var(--green);color:#fff;padding:12px;text-align:center}
 .tab{display:none;padding:12px;padding-bottom:90px}
 .tab.active{display:block}
 .card{background:var(--card);padding:10px;border-radius:10px;margin:10px 0}
 .bottom{position:fixed;bottom:0;width:100%;display:flex;background:#111}
 .bottom button{flex:1;border:0;background:none;color:#fff;padding:8px}
-select,input{padding:6px;margin:4px;width:48%}
 iframe{width:100%;height:200px;border-radius:10px;border:0}
+img{border-radius:8px}
 </style>
 </head>
-
 <body>
 
 <header>🌾 Mandi GOLD</header>
@@ -28,19 +25,19 @@ iframe{width:100%;height:200px;border-radius:10px;border:0}
 <div id="bhav" class="tab active"></div>
 <div id="news" class="tab"></div>
 <div id="trend" class="tab"></div>
-<div id="mausam" class="tab"></div>
+<div id="weather" class="tab"></div>
 <div id="video" class="tab"></div>
 
 <div class="bottom">
-<button onclick="openTab('bhav')">Bhav</button>
-<button onclick="openTab('news')">News</button>
-<button onclick="openTab('trend')">Teji</button>
-<button onclick="openTab('mausam')">Mausam</button>
-<button onclick="openTab('video')">Video</button>
+<button onclick="openTab('bhav')">🌾 Bhav</button>
+<button onclick="openTab('news')">📰 News</button>
+<button onclick="openTab('trend')">📈 Teji</button>
+<button onclick="openTab('weather')">🌦️ Mausam</button>
+<button onclick="openTab('video')">🎥 Video</button>
 </div>
 
 <script>
-const SHEET="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
+const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 
 function openTab(t){
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -50,100 +47,68 @@ function openTab(t){
 if(localStorage.tab)openTab(localStorage.tab);
 
 async function load(sheet){
- let r=await fetch(`https://opensheet.elk.sh/${SHEET}/${sheet}`);
+ let r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
  return r.json();
 }
 
-/* ---------- BHAV ---------- */
-load("Bhav").then(data=>{
- let latest=data[data.length-1].Date;
- if(localStorage.last!=latest){
-   alert("🔔 New bhav update aaya!");
-   localStorage.last=latest;
- }
-
- let html=`
- <h3>Bhav Filter</h3>
- <select id="state"></select>
- <select id="district"></select>
- <select id="mandi"></select>
- <select id="fasal"></select>
- <canvas id="chart"></canvas>
- <div id="list"></div>`;
- bhav.innerHTML=html;
-
- let states=[...new Set(data.map(x=>x.State))];
- state.innerHTML="<option>State</option>"+states.map(s=>`<option>${s}</option>`);
-
- state.onchange=()=>{
- let d=[...new Set(data.filter(x=>x.State==state.value).map(x=>x.District))];
- district.innerHTML="<option>District</option>"+d.map(x=>`<option>${x}</option>`);
- }
-
- district.onchange=()=>{
- let m=[...new Set(data.filter(x=>x.District==district.value).map(x=>x.Mandi))];
- mandi.innerHTML="<option>Mandi</option>"+m.map(x=>`<option>${x}</option>`);
- }
-
- mandi.onchange=()=>{
- let f=[...new Set(data.filter(x=>x.Mandi==mandi.value).map(x=>x.Fasal))];
- fasal.innerHTML="<option>Fasal</option>"+f.map(x=>`<option>${x}</option>`);
- }
-
- fasal.onchange=()=>{
- let rows=data.filter(x=>x.Mandi==mandi.value && x.Fasal==fasal.value);
- list.innerHTML=rows.map(r=>`
+/* -------- BHAV -------- */
+load("Bhav").then(d=>{
+ bhav.innerHTML=d.reverse().map(r=>`
  <div class="card">
- ${r.Date} ${r.Fasal} ₹${r.Modal} (${r.Trend})
+ <b>${r.Date}</b><br>
+ ${r.State} - ${r.Mandi} - ${r.Fasal}<br>
+ Min: ₹${r.Min} | Max: ₹${r.Max} | Modal: ₹${r.Modal}<br>
+ Trend: ${r.Trend}
  </div>`).join("");
-
- new Chart(chart,{
- type:"line",
- data:{labels:rows.map(r=>r.Date),
- datasets:[{label:"Modal",data:rows.map(r=>+r.Modal),borderColor:"gold"}]}
- });
- }
 });
 
-/* ---------- NEWS ---------- */
-load("news").then(d=>{
- news.innerHTML=d.reverse().map(n=>`
- <div class="card">
- <img src="${n.ImageURL}" width="100%">
+/* -------- NEWS -------- */
+load("News").then(d=>{
+ news.innerHTML=d.reverse().map((n,i)=>`
+ <div class="card" onclick="toggle('n${i}')">
+ <img src="${n.ImageURL}" width="100%"><br>
  <b>${n.Title}</b>
- <p>${n.Detail}</p>
+ <p id="n${i}" style="display:none">${n.Detail}</p>
  </div>`).join("");
 });
 
-/* ---------- TREND ---------- */
-load("TejiMandi").then(d=>{
- trend.innerHTML=d.reverse().map(n=>`
- <div class="card">
- <img src="${n.ImageURL}" width="100%">
+/* -------- TREND -------- */
+load("Trend").then(d=>{
+ trend.innerHTML=d.reverse().map((n,i)=>`
+ <div class="card" onclick="toggle('t${i}')">
+ <img src="${n.ImageURL}" width="100%"><br>
  <b>${n.Title}</b>
- <p>${n.Detail}</p>
+ <p id="t${i}" style="display:none">${n.Detail}</p>
  </div>`).join("");
 });
 
-/* ---------- MAUSAM ---------- */
-load("Mausam").then(d=>{
- mausam.innerHTML=d.reverse().map(n=>`
- <div class="card">
+/* -------- MAUSAM -------- */
+load("Weather").then(d=>{
+ weather.innerHTML=d.reverse().map((n,i)=>`
+ <div class="card" onclick="toggle('w${i}')">
  <b>${n.Title}</b>
- <p>${n.Detail}</p>
+ <p id="w${i}" style="display:none">${n.Detail}</p>
  </div>`).join("");
 });
 
-/* ---------- VIDEO ---------- */
+/* -------- VIDEO -------- */
 load("Video").then(d=>{
  video.innerHTML=d.reverse().map(v=>{
  let id=v.VideoURL.split("v=")[1];
  return `<div class="card">
  <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" width="100%">
- <h4 onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">${v.Title}</h4>
+ <h4 onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
+ ${v.Title}
+ </h4>
  </div>`
  }).join("");
 });
+
+function toggle(id){
+ let e=document.getElementById(id);
+ e.style.display=e.style.display==="none"?"block":"none";
+}
 </script>
+
 </body>
 </html>
