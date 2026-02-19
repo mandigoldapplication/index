@@ -206,6 +206,18 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 }
 .miniBtn.primary{background:var(--green);border-color:var(--green);color:#fff;}
 .inlineRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* ✅ Onboarding */
+.onboardBox{
+  width:min(560px,92vw);
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+}
+.onboardTitle{font-weight:900;font-size:18px;margin-bottom:8px;}
+.onboardList{margin:0;padding-left:18px;color:var(--muted);font-weight:700;line-height:1.6;}
+.onboardFooter{display:flex;justify-content:flex-end;margin-top:12px;}
 </style>
 </head>
 
@@ -235,6 +247,21 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   <button id="btn-video" onclick="openTab('video')"><div class="icon">🎥</div><div>Video</div></button>
 </div>
 
+<!-- ✅ Onboarding Modal (1-time) -->
+<div id="onboardModal" class="modal" style="z-index:999999;">
+  <div class="onboardBox">
+    <div class="onboardTitle">👋 Welcome to मंडी GOLD</div>
+    <ul class="onboardList">
+      <li><b>Bhav:</b> Select state → mandi</li>
+      <li><b>Trend:</b> Trend pe click</li>
+      <li><b>Compare:</b> Compare ON → mandi/fasal choose</li>
+    </ul>
+    <div class="onboardFooter">
+      <button class="miniBtn primary" onclick="closeOnboarding()">Got it</button>
+    </div>
+  </div>
+</div>
+
 <!-- Trend Modal -->
 <div id="trendModal" class="modal">
   <div class="box">
@@ -255,6 +282,25 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
       </div>
 
       <button class="closeBtn" onclick="closeTrend()">✖ Close</button>
+    </div>
+
+    <!-- ✅ Trend insights -->
+    <div class="card" style="margin:0 0 10px 0;">
+      <div style="font-weight:900;margin-bottom:8px;">📌 Insights</div>
+      <div class="statsGrid">
+        <div class="statCard">
+          <div class="statNum" id="ins7">—</div>
+          <div class="statLabel">7-day Change</div>
+        </div>
+        <div class="statCard">
+          <div class="statNum" id="insHL">—</div>
+          <div class="statLabel">30-day High / Low</div>
+        </div>
+        <div class="statCard">
+          <div class="statNum" id="insAvg">—</div>
+          <div class="statLabel">Avg Modal</div>
+        </div>
+      </div>
     </div>
 
     <div class="card" style="margin:0 0 10px 0;">
@@ -382,13 +428,24 @@ function getField(obj, names){
   }
   return "";
 }
+function escapeHtml(str){
+  return (str||"").toString()
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function toNum(x){
+  const n = Number((x||"").toString().replace(/[^\d.]/g,""));
+  return isNaN(n) ? 0 : n;
+}
 
 /* ✅ Trend format: Teji = green ▲ +200, Mandi = red ▼ -200 */
 function formatTrend(val){
   const raw=(val||"").toString().trim();
   const s=raw.toLowerCase();
   if(!s) return "";
-  const n = (s.match(/-?\d+/)||[""])[0]; // picks number if present
+  const n = (s.match(/-?\d+/)||[""])[0];
   if(s.startsWith("teji")){
     const num = n || "";
     return `<span style="color:#0f9d58;font-weight:900;">▲ +${num}</span>`;
@@ -408,12 +465,6 @@ function openExclusive(group, id){
   const t=document.getElementById(id);
   if(!t) return;
   t.style.display = (t.style.display==="block") ? "none" : "block";
-}
-function escapeHtml(str){
-  return (str||"").toString()
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
 }
 
 /* TICKER */
@@ -446,6 +497,18 @@ function animateCount(el, target){
     }
     el.textContent = Math.round(cur);
   }, Math.round(1000/fps));
+}
+
+/* ✅ Onboarding */
+function closeOnboarding(){
+  localStorage.setItem("mg_onboard_seen","1");
+  document.getElementById("onboardModal").style.display="none";
+}
+function maybeShowOnboarding(){
+  const seen = localStorage.getItem("mg_onboard_seen")==="1";
+  if(!seen){
+    document.getElementById("onboardModal").style.display="flex";
+  }
 }
 
 /* ✅ Favorites (Mandi/Fasal) */
@@ -551,18 +614,52 @@ function closeTrend(){
   if(cmpFasal){ cmpFasal.style.display="none"; cmpFasal.value=""; }
 }
 function lastN(arr,n){return arr.slice(Math.max(0, arr.length-n));}
-
 function getSeries(mandi, fasal){
   return bhavAll
     .filter(r => (!mandi || r.Mandi===mandi) && (!fasal || r.Fasal===fasal))
     .sort((a,b)=> (a.DateISO||"").localeCompare(b.DateISO||""));
 }
-function toNum(x){
-  const n = Number((x||"").toString().replace(/[^\d.]/g,""));
-  return isNaN(n) ? 0 : n;
+
+function updateTrendInsights(baseRows){
+  const ins7 = document.getElementById("ins7");
+  const insHL = document.getElementById("insHL");
+  const insAvg = document.getElementById("insAvg");
+  if(!ins7 || !insHL || !insAvg) return;
+
+  const rows7 = lastN(baseRows, 7);
+  const rows30 = lastN(baseRows, 30);
+
+  if(rows7.length >= 2){
+    const first = toNum(rows7[0].Modal);
+    const last = toNum(rows7[rows7.length-1].Modal);
+    const diff = last - first;
+    const sign = diff >= 0 ? "+" : "";
+    ins7.innerHTML = `<span style="color:${diff>=0 ? "#0f9d58" : "#e53935"};font-weight:900;">${sign}${Math.round(diff)}</span>`;
+  }else{
+    ins7.textContent = "—";
+  }
+
+  if(rows30.length){
+    const vals = rows30.map(r=>toNum(r.Modal)).filter(v=>v>0);
+    if(vals.length){
+      const hi = Math.max(...vals);
+      const lo = Math.min(...vals);
+      insHL.textContent = `${Math.round(hi)} / ${Math.round(lo)}`;
+      const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+      insAvg.textContent = `${Math.round(avg)}`;
+    }else{
+      insHL.textContent = "—";
+      insAvg.textContent = "—";
+    }
+  }else{
+    insHL.textContent = "—";
+    insAvg.textContent = "—";
+  }
 }
 
 function buildCharts(baseRows, cmpRows){
+  updateTrendInsights(baseRows);
+
   const rows7 = lastN(baseRows, 7);
   const rows30 = lastN(baseRows, 30);
 
@@ -605,7 +702,6 @@ function buildCharts(baseRows, cmpRows){
 
 function openTrend(mandi, fasal){
   currentTrendBase = {mandi: mandi||"", fasal: fasal||""};
-
   document.getElementById("trendTitle").textContent = `📊 Trend: ${mandi || ""}${fasal ? " | "+fasal : ""}`;
 
   const baseRows = getSeries(currentTrendBase.mandi, currentTrendBase.fasal);
@@ -654,6 +750,40 @@ function setRowsFound(n){
   count.textContent = n;
 }
 
+/* ✅ Pagination: show first 50 rows + Load more */
+const PAGE_SIZE = 50;
+let currentRowsAll = [];
+let currentPage = 1;
+let currentMode = "mandiWise";
+
+function resetPagination(rows, mode){
+  currentRowsAll = rows || [];
+  currentMode = mode || "mandiWise";
+  currentPage = 1;
+  drawTablePage();
+}
+function loadMore(){
+  currentPage += 1;
+  drawTablePage(true);
+}
+function getPagedRows(){
+  const end = currentPage * PAGE_SIZE;
+  return currentRowsAll.slice(0, end);
+}
+function drawTablePage(scrollKeep){
+  const rows = getPagedRows();
+  setRowsFound(currentRowsAll.length);
+
+  if(currentMode==="mandiWise"){
+    drawMandiWise(rows);
+  }else{
+    drawFasalWise(rows);
+  }
+  if(scrollKeep){
+    // do nothing
+  }
+}
+
 /* BHAV UI */
 function bhavUI(tickerBlock){
   return `
@@ -697,7 +827,7 @@ function bhavUI(tickerBlock){
         <!-- ✅ Search -->
         <input id="tableSearch" placeholder="🔍 Search (Fasal/Mandi)" style="margin-top:10px;display:none;">
 
-        <!-- ✅ Full-width table: remove boxed look by stretching into section padding -->
+        <!-- ✅ Full-width table -->
         <div id="bhavTableWrap" style="margin-top:10px;margin-left:-12px;margin-right:-12px;"></div>
       </div>
     </div>
@@ -759,10 +889,11 @@ function attachTableSearch(allRows, mode){
   const inp = document.getElementById("tableSearch");
   if(!inp) return;
   inp.style.display = "block";
+  inp.value = "";
   inp.oninput = ()=>{
     const q = inp.value.trim().toLowerCase();
     if(!q){
-      mode==="mandiWise" ? renderBhavTableMandiWise(allRows) : renderBhavTableFasalWise(allRows);
+      resetPagination(allRows, mode);
       return;
     }
     const filtered = allRows.filter(r=>{
@@ -770,13 +901,15 @@ function attachTableSearch(allRows, mode){
       const b=(r.Mandi||"").toLowerCase();
       return a.includes(q) || b.includes(q);
     });
-    mode==="mandiWise" ? renderBhavTableMandiWise(filtered) : renderBhavTableFasalWise(filtered);
+    resetPagination(filtered, mode);
   };
 }
 
-function renderBhavTableMandiWise(rows){
-  setRowsFound(rows.length);
+/* ✅ Draw table implementations (with Load more) */
+function drawMandiWise(rows){
   const wrap=document.getElementById("bhavTableWrap");
+  const hasMore = currentRowsAll.length > rows.length;
+
   wrap.innerHTML = `
     <table><thead>
       <tr><th>Date</th><th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
@@ -789,15 +922,17 @@ function renderBhavTableMandiWise(rows){
         </tr>
       `).join("")}
     </tbody></table>
+    ${hasMore ? `<div style="padding:12px;"><button class="miniBtn primary" type="button" onclick="loadMore()">Load more</button></div>` : ``}
   `;
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
     c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
   });
 }
 
-function renderBhavTableFasalWise(rows){
-  setRowsFound(rows.length);
+function drawFasalWise(rows){
   const wrap=document.getElementById("bhavTableWrap");
+  const hasMore = currentRowsAll.length > rows.length;
+
   wrap.innerHTML = `
     <table><thead>
       <tr><th>Date</th><th>Mandi</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
@@ -810,6 +945,7 @@ function renderBhavTableFasalWise(rows){
         </tr>
       `).join("")}
     </tbody></table>
+    ${hasMore ? `<div style="padding:12px;"><button class="miniBtn primary" type="button" onclick="loadMore()">Load more</button></div>` : ``}
   `;
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
     c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
@@ -888,11 +1024,17 @@ async function init(){
       setSelectionCard("");
       return;
     }
-    setSelectionCard(`📍 Mandi: ${escapeHtml(m)} <button class="miniBtn" style="float:right" onclick="addFav('mandi','${(m||"").replace(/'/g,"\\'")}')">⭐ Save</button>`);
+
+    setSelectionCard(
+      `📍 Mandi: ${escapeHtml(m)}
+       <button class="miniBtn" style="float:right;margin-left:8px;" onclick="addFav('mandi','${(m||"").replace(/'/g,"\\'")}')">⭐ Save</button>`
+    );
+
     const rows = bhavAll
       .filter(r=>(!s || r.State===s) && r.Mandi===m)
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
-    renderBhavTableMandiWise(rows);
+
+    resetPagination(rows, "mandiWise");
     attachTableSearch(rows, "mandiWise");
   };
 
@@ -905,15 +1047,21 @@ async function init(){
       setSelectionCard("");
       return;
     }
+
     setSelectionCard(`🌾 Fasal: ${escapeHtml(f)} <button class="miniBtn" style="float:right" onclick="addFav('fasal','${(f||"").replace(/'/g,"\\'")}')">⭐ Save</button>`);
+
     const rows = bhavAll
       .filter(r=>r.Fasal===f)
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
-    renderBhavTableFasalWise(rows);
+
+    resetPagination(rows, "fasalWise");
     attachTableSearch(rows, "fasalWise");
   };
 
   setBhavMode("mandiWise");
+
+  // ✅ Onboarding (1-time)
+  maybeShowOnboarding();
 
   // Other tabs
   const n=(await load("News")).reverse();
