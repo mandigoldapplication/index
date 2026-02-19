@@ -4,21 +4,44 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mandi GOLD</title>
+
 <style>
 :root{--bg:#0d0f12;--card:#111;--text:#fff;--green:#0f9d58}
 .light{--bg:#f4f4f4;--card:#fff;--text:#000}
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-header{background:var(--green);color:#fff;padding:12px;text-align:center}
+
+#splash{
+position:fixed;inset:0;background:var(--green);
+display:flex;align-items:center;justify-content:center;
+font-size:28px;color:#fff;z-index:9999;
+}
+
+header{background:var(--green);padding:12px;text-align:center;color:#fff;font-weight:bold}
+
 .tab{display:none;padding:12px;padding-bottom:90px}
 .tab.active{display:block}
+
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th,td{border:1px solid #333;padding:6px;font-size:12px;text-align:center}
+th{background:var(--green);color:#fff}
+
 .card{background:var(--card);padding:10px;border-radius:10px;margin:10px 0}
+.row{display:flex;gap:10px;align-items:center}
+.row img{width:30%;height:80px;object-fit:cover;border-radius:8px}
+.row .text{width:70%;font-weight:bold}
+
+.detail{display:none;font-size:13px;margin-top:8px}
+
+iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px}
+
 .bottom{position:fixed;bottom:0;width:100%;display:flex;background:#111}
 .bottom button{flex:1;border:0;background:none;color:#fff;padding:8px}
-iframe{width:100%;height:200px;border-radius:10px;border:0}
-img{border-radius:8px}
 </style>
 </head>
+
 <body>
+
+<div id="splash">🌾 Mandi GOLD</div>
 
 <header>🌾 Mandi GOLD</header>
 
@@ -40,73 +63,99 @@ img{border-radius:8px}
 const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 
 function openTab(t){
- document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- document.getElementById(t).classList.add('active');
- localStorage.tab=t;
+document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+document.getElementById(t).classList.add('active');
+localStorage.tab=t;
 }
 if(localStorage.tab)openTab(localStorage.tab);
 
+setTimeout(()=>{document.getElementById("splash").style.display="none"},2000);
+
 async function load(sheet){
- let r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
- return r.json();
+let r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
+return r.json();
 }
 
-/* -------- BHAV -------- */
-load("Bhav").then(d=>{
- bhav.innerHTML=d.reverse().map(r=>`
- <div class="card">
- <b>${r.Date}</b><br>
- ${r.State} - ${r.Mandi} - ${r.Fasal}<br>
- Min: ₹${r.Min} | Max: ₹${r.Max} | Modal: ₹${r.Modal}<br>
- Trend: ${r.Trend}
- </div>`).join("");
+/* -------- BHAV TABLE -------- */
+load("Bhav").then(data=>{
+let html=`
+<table>
+<tr>
+<th>Date</th><th>State</th><th>Mandi</th>
+<th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th>
+</tr>`;
+data.reverse().forEach(r=>{
+html+=`
+<tr>
+<td>${r.Date}</td>
+<td>${r.State}</td>
+<td>${r.Mandi}</td>
+<td>${r.Fasal}</td>
+<td>${r.Min}</td>
+<td>${r.Max}</td>
+<td>${r.Modal}</td>
+<td>${r.Trend}</td>
+</tr>`;
+});
+html+="</table>";
+bhav.innerHTML=html;
 });
 
 /* -------- NEWS -------- */
-load("News").then(d=>{
- news.innerHTML=d.reverse().map((n,i)=>`
- <div class="card" onclick="toggle('n${i}')">
- <img src="${n.ImageURL}" width="100%"><br>
- <b>${n.Title}</b>
- <p id="n${i}" style="display:none">${n.Detail}</p>
- </div>`).join("");
+load("News").then(data=>{
+news.innerHTML=data.reverse().map((n,i)=>`
+<div class="card">
+<div class="row" onclick="toggle('n${i}')">
+<img src="${n.ImageURL}">
+<div class="text">${n.Title}</div>
+</div>
+<div id="n${i}" class="detail">${n.Detail}</div>
+</div>`).join("");
 });
 
 /* -------- TREND -------- */
-load("Trend").then(d=>{
- trend.innerHTML=d.reverse().map((n,i)=>`
- <div class="card" onclick="toggle('t${i}')">
- <img src="${n.ImageURL}" width="100%"><br>
- <b>${n.Title}</b>
- <p id="t${i}" style="display:none">${n.Detail}</p>
- </div>`).join("");
+load("Trend").then(data=>{
+trend.innerHTML=data.reverse().map((n,i)=>`
+<div class="card">
+<div class="row" onclick="toggle('t${i}')">
+<img src="${n.ImageURL}">
+<div class="text">${n.Title}</div>
+</div>
+<div id="t${i}" class="detail">${n.Detail}</div>
+</div>`).join("");
 });
 
 /* -------- MAUSAM -------- */
-load("Weather").then(d=>{
- weather.innerHTML=d.reverse().map((n,i)=>`
- <div class="card" onclick="toggle('w${i}')">
- <b>${n.Title}</b>
- <p id="w${i}" style="display:none">${n.Detail}</p>
- </div>`).join("");
+load("Weather").then(data=>{
+weather.innerHTML=data.reverse().map((n,i)=>`
+<div class="card" onclick="toggle('w${i}')">
+<b>${n.Title}</b>
+<div id="w${i}" class="detail">${n.Detail}</div>
+</div>`).join("");
 });
 
 /* -------- VIDEO -------- */
-load("Video").then(d=>{
- video.innerHTML=d.reverse().map(v=>{
- let id=v.VideoURL.split("v=")[1];
- return `<div class="card">
- <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" width="100%">
- <h4 onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
- ${v.Title}
- </h4>
- </div>`
- }).join("");
+load("Video").then(data=>{
+video.innerHTML=data.reverse().map(v=>{
+let id=v.VideoURL.split("v=")[1]?.split("&")[0];
+return `
+<div class="card">
+<div class="row" onclick="playVideo(this,'${id}')">
+<img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+<div class="text">${v.Title}</div>
+</div>
+</div>`;
+}).join("");
 });
 
 function toggle(id){
- let e=document.getElementById(id);
- e.style.display=e.style.display==="none"?"block":"none";
+let e=document.getElementById(id);
+e.style.display=e.style.display==="block"?"none":"block";
+}
+
+function playVideo(el,id){
+el.parentElement.innerHTML=
+`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
 }
 </script>
 
