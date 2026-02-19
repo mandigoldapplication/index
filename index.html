@@ -40,6 +40,7 @@ header{
   color:#fff; padding:6px 10px; border-radius:999px;
   cursor:pointer; font-size:12px; font-weight:800;
 }
+
 .netChip{
   display:inline-flex; align-items:center; gap:8px;
   padding:6px 10px; border-radius:999px;
@@ -300,6 +301,7 @@ body.dark .skel::after{
   <div class="actions">
     <div id="netChip" class="netChip online" title="Network status"><span class="dot"></span><span id="netText">Online</span></div>
     <button class="btnSmall" onclick="enableAlerts()">🔔 Alerts</button>
+    <button class="btnSmall" onclick="shareApp()">📤 Share App</button>
     <button class="btnSmall" onclick="toggleTheme()">🌗 Theme</button>
   </div>
 </header>
@@ -470,6 +472,27 @@ function fireBhavUpdateAlert(){
   if(enabled){
     showToast("🔔 " + msg);
     if(navigator.vibrate) navigator.vibrate([120, 60, 120]);
+  }
+}
+
+/* ✅ SHARE APP (Header button) */
+function shareApp(){
+  const appUrl = window.location.href;
+  const text = "🌾 मंडी GOLD\n\nLive mandi bhav, teji-mandi trend aur fresh updates.\n\n👉 " + appUrl;
+
+  if(navigator.share){
+    navigator.share({ title:"मंडी GOLD", text, url: appUrl }).catch(()=>{});
+    return;
+  }
+  // WhatsApp fallback
+  try{
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+  }catch(e){}
+  // Copy link fallback
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(appUrl).then(()=>showToast("📋 Link copied")).catch(()=>{});
+  }else{
+    showToast("📤 Share: copy URL from address bar");
   }
 }
 
@@ -1205,6 +1228,7 @@ function bhavUI(tickerBlock){
           <div><b id="rowsCount">0</b></div>
         </div>
 
+        <!-- Full width table area -->
         <div id="bhavTableWrap" style="margin-top:10px;margin-left:-12px;margin-right:-12px;"></div>
       </div>
     </div>
@@ -1232,6 +1256,7 @@ function bhavUI(tickerBlock){
       </div>
     </div>
 
+    <!-- ✅ After Follow Us -->
     <div class="section">
       <div class="sectionHead gradB">✨ Daily Digest</div>
       <div class="sectionBody">
@@ -1284,7 +1309,7 @@ function setBhavMode(m){
   document.getElementById("btnFW").classList.toggle("active", m==="fasalWise");
   document.getElementById("mwBox").style.display = (m==="mandiWise") ? "grid" : "none";
   document.getElementById("fwBox").style.display = (m==="fasalWise") ? "block" : "none";
-  document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
+  document.getElementById("bhavTableWrap").innerHTML = "";
   document.getElementById("rowsBadge").style.display="none";
   setSelectionCard("");
 }
@@ -1428,15 +1453,15 @@ async function init(){
   animateCount(document.getElementById("statFasals"), fasals.length);
 
   // fill dropdowns
-  unique(bhavAll.map(r=>r.State)).forEach(s=> mwState.insertAdjacentHTML("beforeend", `<option>${escapeHtml(s)}</option>`));
-  unique(bhavAll.map(r=>r.Fasal)).forEach(f=> fwFasal.insertAdjacentHTML("beforeend", `<option>${escapeHtml(f)}</option>`));
+  unique(bhavAll.map(r=>r.State)).forEach(s=> document.getElementById("mwState").insertAdjacentHTML("beforeend", `<option>${escapeHtml(s)}</option>`));
+  unique(bhavAll.map(r=>r.Fasal)).forEach(f=> document.getElementById("fwFasal").insertAdjacentHTML("beforeend", `<option>${escapeHtml(f)}</option>`));
 
   mwState.onchange=()=>{
     mwMandi.innerHTML=`<option value="">Select Mandi</option>`;
     const s=mwState.value;
     unique(bhavAll.filter(r=>!s || r.State===s).map(r=>r.Mandi))
       .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${escapeHtml(m)}</option>`));
-    document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
+    document.getElementById("bhavTableWrap").innerHTML="";
     document.getElementById("rowsBadge").style.display="none";
     setSelectionCard("");
   };
@@ -1444,7 +1469,7 @@ async function init(){
   mwMandi.onchange=()=>{
     const s=mwState.value, m=mwMandi.value;
     if(!m){
-      document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
+      document.getElementById("bhavTableWrap").innerHTML="";
       document.getElementById("rowsBadge").style.display="none";
       setSelectionCard("");
       return;
@@ -1464,7 +1489,7 @@ async function init(){
   fwFasal.onchange=()=>{
     const f=fwFasal.value;
     if(!f){
-      document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
+      document.getElementById("bhavTableWrap").innerHTML="";
       document.getElementById("rowsBadge").style.display="none";
       setSelectionCard("");
       return;
