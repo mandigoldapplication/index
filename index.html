@@ -107,6 +107,45 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   padding:10px 12px; border-radius:999px;
   display:none; font-weight:900; box-shadow:0 6px 20px rgba(0,0,0,.2);
 }
+
+/* ✅ Ticker */
+.tickerWrap{
+  margin:10px 0 6px 0;
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+}
+.tickerLabel{
+  background:var(--green);
+  color:#fff;
+  font-weight:900;
+  padding:10px 12px;
+  white-space:nowrap;
+}
+.marquee{
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  padding:10px 0;
+}
+.track{
+  display:inline-block;
+  white-space:nowrap;
+  will-change:transform;
+  animation: scroll 18s linear infinite;
+}
+.track span{
+  margin:0 14px;
+  font-weight:800;
+  color:var(--text);
+}
+@keyframes scroll{
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 </style>
 </head>
 
@@ -156,23 +195,14 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   </div>
 </div>
 
-<!-- Video Modal (kept) -->
+<!-- Video Modal -->
 <div id="videoModal" class="modal">
   <div class="box">
     <div class="modalTop">
       <div style="font-weight:900;font-size:16px;" id="videoTitle">🎥 Video</div>
       <button class="closeBtn" onclick="closeVideo()">✖ Close</button>
     </div>
-
     <div id="videoFrameWrap"></div>
-
-    <div id="videoFallback" class="card" style="display:none;">
-      <div style="font-weight:900;margin-bottom:6px;">Video embed blocked 😕</div>
-      <div class="small" style="margin-bottom:10px;">
-        Browser/Adblock/Privacy setting की वजह से YouTube player config block हो रही है.
-      </div>
-      <button class="closeBtn" onclick="openOnYoutube()">▶ Open on YouTube</button>
-    </div>
   </div>
 </div>
 
@@ -198,14 +228,10 @@ function toggleTheme(){
 /* ========== CONFIG ========== */
 const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 
-/* ========== TABS + stop video when leaving ========== */
+/* ========== TABS ========== */
 function closeVideo(){
   document.getElementById("videoFrameWrap").innerHTML = "";
-  document.getElementById("videoFallback").style.display = "none";
   document.getElementById("videoModal").style.display = "none";
-  window.__lastVideoUrl = "";
-  window.__lastVideoId = "";
-  window.__lastVideoTitle = "";
 }
 function openTab(t){
   const current = localStorage.tab || "bhav";
@@ -267,31 +293,52 @@ function openExclusive(group, id){
   t.style.display = (t.style.display==="block") ? "none" : "block";
 }
 
-/* ========== TOAST + NOTIFICATIONS ========== */
+/* ========== TOAST + NOTIFICATIONS (fixed) ========== */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg; t.style.display="block";
   setTimeout(()=>t.style.display="none", 4500);
 }
 
-// user gesture based permission
+// promise+callback compatible permission
+function requestPermissionCompat(){
+  return new Promise((resolve, reject)=>{
+    try{
+      const fn = Notification.requestPermission;
+      if(fn.length === 1){
+        // old callback style
+        Notification.requestPermission((p)=>resolve(p));
+      }else{
+        // promise style
+        Notification.requestPermission().then(resolve).catch(reject);
+      }
+    }catch(e){ reject(e); }
+  });
+}
+
 async function enableAlerts(){
   if(!("Notification" in window)){
     showToast("इस browser में notifications support नहीं है.");
     return;
   }
+  if(!window.isSecureContext){
+    showToast("Notifications के लिए HTTPS जरूरी है (secure context).");
+    return;
+  }
   try{
-    const p = await Notification.requestPermission();
+    const p = await requestPermissionCompat();
     if(p==="granted"){
       localStorage.setItem("mg_alerts_enabled","1");
       showToast("✅ Alerts ON हो गए!");
       new Notification("मंडी GOLD", { body: "Alerts ON ✅ अब नए भाव पर notification आएगा." });
-    }else{
+    }else if(p==="denied"){
       localStorage.setItem("mg_alerts_enabled","0");
-      showToast("Alerts allow नहीं हुए.");
+      showToast("Permission DENIED (browser settings से allow करें).");
+    }else{
+      showToast("Permission dismissed / default.");
     }
   }catch(e){
-    showToast("Notification permission error.");
+    showToast("Permission error: " + (e?.message || e));
   }
 }
 
@@ -305,7 +352,28 @@ function fireBhavUpdateAlert(){
   }
 }
 
-/* ========== YOUTUBE (modal) ========== */
+/* ========== TICKER (from Google Sheet: Ticker) ========== */
+function tickerHTML(items){
+  if(!items || items.length===0) return "";
+  // seamless loop: duplicate text
+  const line = items.map(x=>`<span>• ${escapeHtml(x)}</span>`).join("");
+  return `
+    <div class="tickerWrap">
+      <div class="tickerLabel">Latest</div>
+      <div class="marquee">
+        <div class="track">${line}${line}</div>
+      </div>
+    </div>
+  `;
+}
+function escapeHtml(str){
+  return (str||"").toString()
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* ========== YOUTUBE modal (unchanged) ========== */
 function ytId(url){
   if(!url) return "";
   const u=url.toString().trim();
@@ -314,48 +382,18 @@ function ytId(url){
   if(u.includes("/shorts/")) return u.split("/shorts/")[1].split("?")[0].split("&")[0];
   return "";
 }
-
 function openVideo(id, title){
-  window.__lastVideoId = id;
-  window.__lastVideoTitle = title || "";
-  window.__lastVideoUrl = `https://www.youtube.com/watch?v=${id}`;
-
   document.getElementById("videoTitle").textContent = "🎥 " + (title || "Video");
-  document.getElementById("videoFallback").style.display = "none";
-
-  // ✅ minimum params (many 153 cases fixed by removing origin/jsapi extras)
   const src = `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0`;
-
-  // render iframe
   document.getElementById("videoFrameWrap").innerHTML =
-    `<iframe id="ytFrame"
-      src="${src}"
-      allow="autoplay; encrypted-media; picture-in-picture"
-      allowfullscreen></iframe>`;
-
+    `<iframe src="${src}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
   document.getElementById("videoModal").style.display="flex";
-
-  // 🔁 If player gets blocked (often shows config error), show fallback button after few seconds
-  // We cannot read iframe contents (cross-origin), so timeout-based fallback is most reliable.
-  setTimeout(()=>{
-    // If iframe still exists, but user reports error -> fallback button helps.
-    // (User can click "Open on YouTube" and video will definitely play.)
-    const frame = document.getElementById("ytFrame");
-    if(frame){
-      document.getElementById("videoFallback").style.display = "block";
-    }
-  }, 3500);
-}
-
-function openOnYoutube(){
-  if(window.__lastVideoUrl){
-    window.open(window.__lastVideoUrl, "_blank");
-  }
 }
 
 /* ========== TREND CHART ========== */
 let bhavAll=[];
 let chart7Inst=null, chart30Inst=null;
+
 function closeTrend(){
   document.getElementById("trendModal").style.display="none";
   if(chart7Inst){chart7Inst.destroy(); chart7Inst=null;}
@@ -392,9 +430,13 @@ function openTrend(mandi, fasal){
   document.getElementById("trendModal").style.display="flex";
 }
 
-/* ========== BHAV UI ========== */
-function bhavUI(){
+/* ========== BHAV UI (with ticker + selection card) ========== */
+function bhavUI(tickerBlock){
   return `
+    ${tickerBlock || ""}
+
+    <h3 style="margin-top:6px;">📊 Bhav</h3>
+
     <div class="filters">
       <div class="seg">
         <button id="btnMW" class="active" type="button">Mandi Wise</button>
@@ -412,9 +454,12 @@ function bhavUI(){
 
       <div class="small">Trend पर क्लिक → 7 days + 30 days Modal chart</div>
     </div>
+
+    <div id="selectionCard" class="card" style="display:none;font-weight:900;"></div>
     <div id="bhavTableWrap"></div>
   `;
 }
+
 let bhavMode="mandiWise";
 function setBhavMode(m){
   bhavMode=m;
@@ -423,39 +468,55 @@ function setBhavMode(m){
   document.getElementById("mwBox").style.display = (m==="mandiWise") ? "grid" : "none";
   document.getElementById("fwBox").style.display = (m==="fasalWise") ? "block" : "none";
   document.getElementById("bhavTableWrap").innerHTML="";
+  setSelectionCard(""); // hide
 }
+function setSelectionCard(text){
+  const c = document.getElementById("selectionCard");
+  if(!c) return;
+  if(!text){
+    c.style.display="none";
+    c.textContent="";
+  }else{
+    c.style.display="block";
+    c.textContent=text;
+  }
+}
+
 function renderBhavTableMandiWise(rows){
-  const html=`
-  <table><thead>
-    <tr><th>Date</th><th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
-  </thead><tbody>
-    ${rows.map(r=>`
-      <tr>
-        <td>${r.Date||""}</td><td>${r.Fasal||""}</td>
-        <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
-        <td class="trendLink" data-mandi="${r.Mandi||""}" data-fasal="${r.Fasal||""}">${formatTrend(r.Trend||"")}</td>
-      </tr>
-    `).join("")}
-  </tbody></table>`;
-  bhavTableWrap.innerHTML=html;
+  const wrap=document.getElementById("bhavTableWrap");
+  wrap.innerHTML = `
+    <table><thead>
+      <tr><th>Date</th><th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
+    </thead><tbody>
+      ${rows.map(r=>`
+        <tr>
+          <td>${r.Date||""}</td><td>${r.Fasal||""}</td>
+          <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
+          <td class="trendLink" data-mandi="${r.Mandi||""}" data-fasal="${r.Fasal||""}">${formatTrend(r.Trend||"")}</td>
+        </tr>
+      `).join("")}
+    </tbody></table>
+  `;
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
     c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
   });
 }
+
 function renderBhavTableFasalWise(rows){
-  const html=`
-  <table><thead>
-    <tr><th>Date</th><th>Mandi</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
-  </thead><tbody>
-    ${rows.map(r=>`
-      <tr>
-        <td>${r.Date||""}</td><td>${r.Mandi||""}</td>
-        <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
-        <td class="trendLink" data-mandi="${r.Mandi||""}" data-fasal="${r.Fasal||""}">${formatTrend(r.Trend||"")}</td>
-      </tr>
-    `).join("")}
-  </tbody></table>`;
-  bhavTableWrap.innerHTML=html;
+  const wrap=document.getElementById("bhavTableWrap");
+  wrap.innerHTML = `
+    <table><thead>
+      <tr><th>Date</th><th>Mandi</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
+    </thead><tbody>
+      ${rows.map(r=>`
+        <tr>
+          <td>${r.Date||""}</td><td>${r.Mandi||""}</td>
+          <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
+          <td class="trendLink" data-mandi="${r.Mandi||""}" data-fasal="${r.Fasal||""}">${formatTrend(r.Trend||"")}</td>
+        </tr>
+      `).join("")}
+    </tbody></table>
+  `;
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
     c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
   });
@@ -463,11 +524,31 @@ function renderBhavTableFasalWise(rows){
 
 /* ========== INIT ========== */
 async function init(){
-  // Bhav
-  bhav.innerHTML = `<h3>📊 Bhav</h3>` + bhavUI();
+  // ✅ Ticker load (Sheet: Ticker)
+  let tickerBlock = "";
+  try{
+    const t = await load("Ticker");
+    const items = (t||[])
+      .map(r=>getField(r,["Text","text","News","news","Title","title"]))
+      .filter(Boolean)
+      .slice(0,5);
+    tickerBlock = tickerHTML(items);
+  }catch(e){ tickerBlock=""; }
+
+  // Bhav render
+  bhav.innerHTML = bhavUI(tickerBlock);
+
+  // Bind elements
+  const btnMW=document.getElementById("btnMW");
+  const btnFW=document.getElementById("btnFW");
+  const mwState=document.getElementById("mwState");
+  const mwMandi=document.getElementById("mwMandi");
+  const fwFasal=document.getElementById("fwFasal");
+
   btnMW.onclick=()=>setBhavMode("mandiWise");
   btnFW.onclick=()=>setBhavMode("fasalWise");
 
+  // Load Bhav
   const b = await load("Bhav");
   bhavAll = b.map(r=>({
     Date: getField(r,["Date","date"]),
@@ -481,42 +562,49 @@ async function init(){
     Trend: getField(r,["Trend","trend"])
   })).filter(x=>x.Date || x.Mandi || x.Fasal);
 
-  // ✅ update detection: latest row signature (strong)
+  // Update detection: last row signature
   const lastRow = (b && b.length) ? b[b.length-1] : null;
-  const signature = lastRow ? JSON.stringify(lastRow) : "";
+  const sig = lastRow ? JSON.stringify(lastRow) : "";
   const oldSig = localStorage.getItem("mg_last_bhav_sig") || "";
-  if(signature && oldSig && signature !== oldSig){
-    fireBhavUpdateAlert();
-  }
-  if(signature) localStorage.setItem("mg_last_bhav_sig", signature);
+  if(sig && oldSig && sig !== oldSig) fireBhavUpdateAlert();
+  if(sig) localStorage.setItem("mg_last_bhav_sig", sig);
 
-  // dropdowns
+  // Fill dropdowns
   unique(bhavAll.map(r=>r.State)).forEach(s=> mwState.insertAdjacentHTML("beforeend", `<option>${s}</option>`));
   unique(bhavAll.map(r=>r.Fasal)).forEach(f=> fwFasal.insertAdjacentHTML("beforeend", `<option>${f}</option>`));
 
+  // State -> Mandi
   mwState.onchange=()=>{
     mwMandi.innerHTML=`<option value="">Select Mandi</option>`;
     const s=mwState.value;
     unique(bhavAll.filter(r=>!s || r.State===s).map(r=>r.Mandi))
       .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${m}</option>`));
-    bhavTableWrap.innerHTML="";
+    document.getElementById("bhavTableWrap").innerHTML="";
+    setSelectionCard("");
   };
+
+  // Mandi selection
   mwMandi.onchange=()=>{
     const s=mwState.value, m=mwMandi.value;
-    if(!m){bhavTableWrap.innerHTML=""; return;}
+    if(!m){ document.getElementById("bhavTableWrap").innerHTML=""; setSelectionCard(""); return; }
+    setSelectionCard(`📍 Mandi: ${m}`);
     const rows = bhavAll
       .filter(r=>(!s || r.State===s) && r.Mandi===m)
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
     renderBhavTableMandiWise(rows);
   };
+
+  // Fasal selection
   fwFasal.onchange=()=>{
     const f=fwFasal.value;
-    if(!f){bhavTableWrap.innerHTML=""; return;}
+    if(!f){ document.getElementById("bhavTableWrap").innerHTML=""; setSelectionCard(""); return; }
+    setSelectionCard(`🌾 Fasal: ${f}`);
     const rows = bhavAll
       .filter(r=>r.Fasal===f)
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
     renderBhavTableFasalWise(rows);
   };
+
   setBhavMode("mandiWise");
 
   // News (exclusive)
@@ -531,9 +619,9 @@ async function init(){
     </div>
   `).join("");
 
-  // Teji/Mandi posts
-  const t=(await load("Trend")).reverse();
-  trend.innerHTML = `<h3>📈 Teji/Mandi</h3>` + t.map((x,i)=>`
+  // Trend posts
+  const tr=(await load("Trend")).reverse();
+  trend.innerHTML = `<h3>📈 Teji/Mandi</h3>` + tr.map((x,i)=>`
     <div class="card">
       <div class="row" onclick="openExclusive('trendDetail','t${i}')">
         <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
@@ -554,7 +642,7 @@ async function init(){
     </div>
   `).join("");
 
-  // Video (modal)
+  // Video list
   const v=(await load("Video")).reverse();
   if(!v || v.length===0){
     video.innerHTML = `<h3>🎥 Video</h3><div class="card">Video sheet empty है.</div>`;
@@ -576,7 +664,7 @@ async function init(){
   }
 }
 
-/* poll for bhav updates every 5 min */
+/* Poll Bhav every 5 min */
 async function pollBhav(){
   setInterval(async ()=>{
     try{
@@ -588,9 +676,7 @@ async function pollBhav(){
         localStorage.setItem("mg_last_bhav_sig", sig);
         fireBhavUpdateAlert();
       }
-      if(sig && !oldSig){
-        localStorage.setItem("mg_last_bhav_sig", sig);
-      }
+      if(sig && !oldSig) localStorage.setItem("mg_last_bhav_sig", sig);
     }catch(e){}
   }, 300000);
 }
