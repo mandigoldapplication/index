@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>मंडी GOLD</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
@@ -26,25 +27,37 @@ header{
   background:var(--green); padding:12px 12px;
   position:sticky; top:0; z-index:10;
   display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
 }
-.brand{
-  font-weight:900; letter-spacing:.5px;
-  font-size:22px; line-height:1;
-}
+.brand{font-weight:900;letter-spacing:.5px;font-size:22px;line-height:1; white-space:nowrap;}
 .brand .mandi{color:#fff;}
-.brand .gold{color:#FFD54A; text-shadow:0 1px 0 rgba(0,0,0,.3);}
-.themeBtn{
-  background:rgba(255,255,255,.15);
-  border:1px solid rgba(255,255,255,.25);
+.brand .gold{color:#FFD54A;text-shadow:0 1px 0 rgba(0,0,0,.3);}
+
+.actions{display:flex;gap:8px;align-items:center;}
+.btnSmall{
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
   color:#fff; padding:6px 10px; border-radius:999px;
-  cursor:pointer; font-size:12px; font-weight:700;
+  cursor:pointer; font-size:12px; font-weight:800;
 }
 
 .tab{display:none;padding:12px;padding-bottom:96px;}
 .tab.active{display:block;}
 
+.filters{background:var(--card);border:1px solid var(--border);padding:10px;border-radius:10px;margin:10px 0;}
+.seg{display:flex;gap:8px;margin-bottom:10px;}
+.seg button{
+  flex:1; padding:10px; border-radius:10px; cursor:pointer;
+  border:1px solid var(--border); background:var(--bg); color:var(--text); font-weight:800;
+}
+.seg button.active{background:var(--green);color:#fff;border-color:var(--green);}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+select{
+  width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);font-weight:700;
+}
+
 table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;}
-th,td{border:1px solid var(--border);padding:6px;font-size:12px;text-align:center;}
+th,td{border:1px solid var(--border);padding:7px;font-size:12px;text-align:center;}
 th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);}
 
 .card{background:var(--card);padding:10px;border-radius:10px;margin:10px 0;border:1px solid var(--border);}
@@ -52,25 +65,6 @@ th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);}
 .row img{width:30%;height:80px;object-fit:cover;border-radius:8px;background:#ccc;}
 .row .text{width:70%;font-weight:bold}
 .detail{display:none;font-size:13px;margin-top:8px;color:var(--muted);white-space:pre-wrap;}
-
-.filters{background:var(--card);border:1px solid var(--border);padding:10px;border-radius:10px;margin:10px 0;}
-.seg{display:flex;gap:8px;margin-bottom:10px;}
-.seg button{
-  flex:1; padding:8px; border-radius:10px; cursor:pointer;
-  border:1px solid var(--border); background:var(--bg); color:var(--text); font-weight:700;
-}
-.seg button.active{background:var(--green);color:#fff;border-color:var(--green);}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-select,input{
-  width:100%;padding:8px;border-radius:10px;border:1px solid var(--border);
-  background:var(--bg);color:var(--text);
-}
-.btn{
-  width:100%;padding:10px;border-radius:10px;border:none;background:var(--green);color:#fff;font-weight:900;cursor:pointer;
-}
-.btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
-
-iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px;}
 
 .bottom{
   position:fixed;bottom:0;left:0;right:0;
@@ -84,16 +78,48 @@ iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px;}
 }
 .bottom .icon{font-size:22px;line-height:1;}
 .bottom button.active{opacity:1;color:#ffe082;font-weight:900;}
+
+.trendLink{cursor:pointer;text-decoration:underline;font-weight:900;}
+
+.modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:none; align-items:center; justify-content:center; z-index:99999;
+}
+.modal .box{
+  width:min(920px,92vw); max-height:86vh; overflow:auto;
+  background:var(--bg); border:1px solid var(--border); border-radius:14px;
+  padding:12px;
+}
+.modalTop{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+.closeBtn{
+  background:var(--card); border:1px solid var(--border); color:var(--text);
+  padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:800;
+}
+.small{font-size:12px;color:var(--muted);}
+iframe{width:100%;height:240px;border-radius:12px;border:0;}
+canvas{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px;}
+
+#toast{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:88px; z-index:999999;
+  background:var(--card); color:var(--text);
+  border:1px solid var(--border);
+  padding:10px 12px; border-radius:999px;
+  display:none; font-weight:900; box-shadow:0 6px 20px rgba(0,0,0,.2);
+}
 </style>
 </head>
 
 <body>
-
 <div id="splash">🌾 मंडी GOLD</div>
+<div id="toast"></div>
 
 <header>
   <div class="brand"><span class="mandi">मंडी</span> <span class="gold">GOLD</span></div>
-  <button class="themeBtn" onclick="toggleTheme()">🌗 Theme</button>
+  <div class="actions">
+    <button class="btnSmall" onclick="enableAlerts()">🔔 Alerts</button>
+    <button class="btnSmall" onclick="toggleTheme()">🌗 Theme</button>
+  </div>
 </header>
 
 <div id="bhav" class="tab active"></div>
@@ -110,21 +136,81 @@ iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px;}
   <button id="btn-video" onclick="openTab('video')"><div class="icon">🎥</div><div>Video</div></button>
 </div>
 
-<script>
-/* ✅ Default theme = LIGHT */
-document.body.classList.remove("dark");
-if(localStorage.theme === "dark") document.body.classList.add("dark");
+<!-- Trend Modal -->
+<div id="trendModal" class="modal">
+  <div class="box">
+    <div class="modalTop">
+      <div style="font-weight:900;font-size:16px;" id="trendTitle">📊 Trend</div>
+      <button class="closeBtn" onclick="closeTrend()">✖ Close</button>
+    </div>
 
+    <div class="card" style="margin:0 0 10px 0;">
+      <div style="font-weight:900;margin-bottom:6px;">Last 7 Days (Modal)</div>
+      <canvas id="chart7" height="120"></canvas>
+    </div>
+
+    <div class="card" style="margin:0;">
+      <div style="font-weight:900;margin-bottom:6px;">Last 30 Days (Modal)</div>
+      <canvas id="chart30" height="120"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Video Modal (kept) -->
+<div id="videoModal" class="modal">
+  <div class="box">
+    <div class="modalTop">
+      <div style="font-weight:900;font-size:16px;" id="videoTitle">🎥 Video</div>
+      <button class="closeBtn" onclick="closeVideo()">✖ Close</button>
+    </div>
+
+    <div id="videoFrameWrap"></div>
+
+    <div id="videoFallback" class="card" style="display:none;">
+      <div style="font-weight:900;margin-bottom:6px;">Video embed blocked 😕</div>
+      <div class="small" style="margin-bottom:10px;">
+        Browser/Adblock/Privacy setting की वजह से YouTube player config block हो रही है.
+      </div>
+      <button class="closeBtn" onclick="openOnYoutube()">▶ Open on YouTube</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== THEME ========== */
+document.body.classList.remove("dark"); // default LIGHT
+if(localStorage.theme === "dark") document.body.classList.add("dark");
 function toggleTheme(){
   document.body.classList.toggle("dark");
   localStorage.theme = document.body.classList.contains("dark") ? "dark" : "light";
 }
 
-setTimeout(()=>{document.getElementById("splash").style.display="none"},2000);
+/* ========== SPLASH (only first time) ========== */
+(function(){
+  const seen = localStorage.getItem("mg_splash_seen");
+  const s = document.getElementById("splash");
+  if(seen){ s.style.display="none"; }
+  else{
+    setTimeout(()=>{ s.style.display="none"; localStorage.setItem("mg_splash_seen","1"); },2000);
+  }
+})();
 
+/* ========== CONFIG ========== */
 const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 
+/* ========== TABS + stop video when leaving ========== */
+function closeVideo(){
+  document.getElementById("videoFrameWrap").innerHTML = "";
+  document.getElementById("videoFallback").style.display = "none";
+  document.getElementById("videoModal").style.display = "none";
+  window.__lastVideoUrl = "";
+  window.__lastVideoId = "";
+  window.__lastVideoTitle = "";
+}
 function openTab(t){
+  const current = localStorage.tab || "bhav";
+  if(current === "video" && t !== "video"){ closeVideo(); }
+
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.getElementById(t).classList.add('active');
 
@@ -135,172 +221,91 @@ function openTab(t){
 }
 if(localStorage.tab) openTab(localStorage.tab); else openTab("bhav");
 
+/* ========== LOAD ========== */
 async function load(sheet){
-  let r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
+  const r = await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`);
   return r.json();
 }
 
-/* ✅ Trend formatting (teji 200 / mandi 200 / neutral) */
+/* ========== HELPERS ========== */
+function unique(arr){return [...new Set(arr.filter(x=>x!==undefined && x!==null && x!==""))];}
+function toISO(dateStr){
+  const d=new Date((dateStr||"").toString().trim());
+  if(isNaN(d.getTime())) return "";
+  const mm=String(d.getMonth()+1).padStart(2,"0");
+  const dd=String(d.getDate()).padStart(2,"0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+function getField(obj, names){
+  const keys = Object.keys(obj||{});
+  for(const name of names){
+    const k = keys.find(x => x.toLowerCase() === name.toLowerCase());
+    if(k) return obj[k];
+  }
+  return "";
+}
 function formatTrend(val){
   const s=(val||"").toString().trim().toLowerCase();
   if(!s) return "";
   if(s.startsWith("teji")){
     const n = (s.match(/\d+/)||[""])[0];
-    return `🟢▲ +${n || ""}`;
+    return `🟢 +${n || ""}`;
   }
   if(s.startsWith("mandi")){
     const n = (s.match(/\d+/)||[""])[0];
-    return `🔴▼ -${n || ""}`;
+    return `🔴-${n || ""}`;
   }
-  if(s.startsWith("neutral")){
-    return `🟠 Neutral`;
-  }
+  if(s.startsWith("neutral")) return `🟠 Neutral`;
   return val;
 }
-
-/* -------- BHAV (Only 2 filter modes) -------- */
-let bhavData=[];
-
-function bhavUI(){
-  return `
-  <div class="filters">
-    <div class="seg">
-      <button id="modeM" class="active" type="button" onclick="setMode('mandi')">🏬 Mandi wise</button>
-      <button id="modeF" type="button" onclick="setMode('fasal')">🌾 Fasal wise</button>
-    </div>
-
-    <div id="boxM" class="grid">
-      <select id="stateSel"><option value="">State (All)</option></select>
-      <select id="distSel"><option value="">District (All)</option></select>
-      <select id="mandiSel"><option value="">Mandi (All)</option></select>
-      <select id="fasalSelM"><option value="">Fasal (All)</option></select>
-      <input id="fromM" type="date">
-      <input id="toM" type="date">
-    </div>
-
-    <div id="boxF" class="grid" style="display:none;">
-      <select id="fasalSelF"><option value="">Fasal (All)</option></select>
-      <input id="fromF" type="date">
-      <input id="toF" type="date">
-    </div>
-
-    <div class="grid">
-      <button class="btn" onclick="applyBhavFilter()">Apply</button>
-      <button class="btn secondary" onclick="resetBhav()">Reset</button>
-    </div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th><th>State</th><th>District</th><th>Mandi</th><th>Fasal</th>
-        <th>Min</th><th>Max</th><th>Modal</th><th>Trend</th>
-      </tr>
-    </thead>
-    <tbody id="bhavTable"></tbody>
-  </table>`;
-}
-
-let mode="mandi";
-function setMode(m){
-  mode=m;
-  document.getElementById("modeM").classList.toggle("active", m==="mandi");
-  document.getElementById("modeF").classList.toggle("active", m==="fasal");
-  document.getElementById("boxM").style.display = (m==="mandi") ? "grid" : "none";
-  document.getElementById("boxF").style.display = (m==="fasal") ? "grid" : "none";
-}
-
-function unique(arr){ return [...new Set(arr.filter(x=>x!==undefined && x!==null && x!==""))]; }
-
-function fillBhavDropdowns(){
-  const stateSel=document.getElementById("stateSel");
-  const distSel=document.getElementById("distSel");
-  const mandiSel=document.getElementById("mandiSel");
-  const fasalSelM=document.getElementById("fasalSelM");
-  const fasalSelF=document.getElementById("fasalSelF");
-
-  // initial
-  unique(bhavData.map(r=>r.State)).forEach(s=> stateSel.insertAdjacentHTML("beforeend", `<option>${s}</option>`));
-  unique(bhavData.map(r=>r.Fasal)).forEach(f=>{
-    fasalSelM.insertAdjacentHTML("beforeend", `<option>${f}</option>`);
-    fasalSelF.insertAdjacentHTML("beforeend", `<option>${f}</option>`);
+function openExclusive(group, id){
+  document.querySelectorAll(`.${group}`).forEach(el=>{
+    if(el.id !== id) el.style.display="none";
   });
-
-  stateSel.onchange=()=>{
-    distSel.innerHTML='<option value="">District (All)</option>';
-    mandiSel.innerHTML='<option value="">Mandi (All)</option>';
-    const s=stateSel.value;
-    unique(bhavData.filter(r=>!s || r.State===s).map(r=>r.District))
-      .forEach(d=> distSel.insertAdjacentHTML("beforeend", `<option>${d}</option>`));
-  };
-
-  distSel.onchange=()=>{
-    mandiSel.innerHTML='<option value="">Mandi (All)</option>';
-    const s=stateSel.value, d=distSel.value;
-    unique(bhavData.filter(r=>(!s||r.State===s) && (!d||r.District===d)).map(r=>r.Mandi))
-      .forEach(m=> mandiSel.insertAdjacentHTML("beforeend", `<option>${m}</option>`));
-  };
+  const t=document.getElementById(id);
+  if(!t) return;
+  t.style.display = (t.style.display==="block") ? "none" : "block";
 }
 
-function renderBhavTable(rows){
-  const tbody=document.getElementById("bhavTable");
-  tbody.innerHTML = rows.map(r=>`
-    <tr>
-      <td>${r.Date||""}</td>
-      <td>${r.State||""}</td>
-      <td>${r.District||""}</td>
-      <td>${r.Mandi||""}</td>
-      <td>${r.Fasal||""}</td>
-      <td>${r.Min||""}</td>
-      <td>${r.Max||""}</td>
-      <td>${r.Modal||""}</td>
-      <td>${formatTrend(r.Trend)}</td>
-    </tr>
-  `).join("");
+/* ========== TOAST + NOTIFICATIONS ========== */
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.style.display="block";
+  setTimeout(()=>t.style.display="none", 4500);
 }
 
-function applyBhavFilter(){
-  let rows=[...bhavData];
-
-  if(mode==="mandi"){
-    const state=stateSel.value, dist=distSel.value, mandi=mandiSel.value, fasal=fasalSelM.value;
-    const from=fromM.value, to=toM.value;
-    rows = rows.filter(r=>
-      (!state || r.State===state) &&
-      (!dist || r.District===dist) &&
-      (!mandi || r.Mandi===mandi) &&
-      (!fasal || r.Fasal===fasal) &&
-      (!from || (r.DateISO && r.DateISO >= from)) &&
-      (!to || (r.DateISO && r.DateISO <= to))
-    );
-  }else{
-    const fasal=fasalSelF.value;
-    const from=fromF.value, to=toF.value;
-    rows = rows.filter(r=>
-      (!fasal || r.Fasal===fasal) &&
-      (!from || (r.DateISO && r.DateISO >= from)) &&
-      (!to || (r.DateISO && r.DateISO <= to))
-    );
+// user gesture based permission
+async function enableAlerts(){
+  if(!("Notification" in window)){
+    showToast("इस browser में notifications support नहीं है.");
+    return;
   }
-
-  renderBhavTable(rows);
+  try{
+    const p = await Notification.requestPermission();
+    if(p==="granted"){
+      localStorage.setItem("mg_alerts_enabled","1");
+      showToast("✅ Alerts ON हो गए!");
+      new Notification("मंडी GOLD", { body: "Alerts ON ✅ अब नए भाव पर notification आएगा." });
+    }else{
+      localStorage.setItem("mg_alerts_enabled","0");
+      showToast("Alerts allow नहीं हुए.");
+    }
+  }catch(e){
+    showToast("Notification permission error.");
+  }
 }
 
-function resetBhav(){
-  // reset fields
-  stateSel.value=""; distSel.value=""; mandiSel.value=""; fasalSelM.value="";
-  fasalSelF.value="";
-  fromM.value=""; toM.value=""; fromF.value=""; toF.value="";
-  renderBhavTable(bhavData);
+function fireBhavUpdateAlert(){
+  const msg="नये भाव अपडेट हो गई हैं, अपनी मंडी के नए 🌾 भाव जानिए अभी";
+  showToast(msg);
+
+  const enabled = localStorage.getItem("mg_alerts_enabled")==="1";
+  if(enabled && "Notification" in window && Notification.permission==="granted"){
+    try{ new Notification("मंडी GOLD", { body: msg }); }catch(e){}
+  }
 }
 
-/* -------- NEWS / TREND / WEATHER -------- */
-function toggle(id){
-  const e=document.getElementById(id);
-  e.style.display = (e.style.display==="block") ? "none" : "block";
-}
-
-/* -------- VIDEO -------- */
+/* ========== YOUTUBE (modal) ========== */
 function ytId(url){
   if(!url) return "";
   const u=url.toString().trim();
@@ -309,82 +314,288 @@ function ytId(url){
   if(u.includes("/shorts/")) return u.split("/shorts/")[1].split("?")[0].split("&")[0];
   return "";
 }
-function playVideo(el,id){
-  el.parentElement.innerHTML =
-    `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
+
+function openVideo(id, title){
+  window.__lastVideoId = id;
+  window.__lastVideoTitle = title || "";
+  window.__lastVideoUrl = `https://www.youtube.com/watch?v=${id}`;
+
+  document.getElementById("videoTitle").textContent = "🎥 " + (title || "Video");
+  document.getElementById("videoFallback").style.display = "none";
+
+  // ✅ minimum params (many 153 cases fixed by removing origin/jsapi extras)
+  const src = `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0`;
+
+  // render iframe
+  document.getElementById("videoFrameWrap").innerHTML =
+    `<iframe id="ytFrame"
+      src="${src}"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen></iframe>`;
+
+  document.getElementById("videoModal").style.display="flex";
+
+  // 🔁 If player gets blocked (often shows config error), show fallback button after few seconds
+  // We cannot read iframe contents (cross-origin), so timeout-based fallback is most reliable.
+  setTimeout(()=>{
+    // If iframe still exists, but user reports error -> fallback button helps.
+    // (User can click "Open on YouTube" and video will definitely play.)
+    const frame = document.getElementById("ytFrame");
+    if(frame){
+      document.getElementById("videoFallback").style.display = "block";
+    }
+  }, 3500);
 }
 
-/* ========== LOAD ALL ========== */
+function openOnYoutube(){
+  if(window.__lastVideoUrl){
+    window.open(window.__lastVideoUrl, "_blank");
+  }
+}
+
+/* ========== TREND CHART ========== */
+let bhavAll=[];
+let chart7Inst=null, chart30Inst=null;
+function closeTrend(){
+  document.getElementById("trendModal").style.display="none";
+  if(chart7Inst){chart7Inst.destroy(); chart7Inst=null;}
+  if(chart30Inst){chart30Inst.destroy(); chart30Inst=null;}
+}
+function lastN(arr,n){return arr.slice(Math.max(0, arr.length-n));}
+function openTrend(mandi, fasal){
+  document.getElementById("trendTitle").textContent = `📊 Trend: ${mandi || ""}${fasal ? " | "+fasal : ""}`;
+  const rows = bhavAll
+    .filter(r => (!mandi || r.Mandi===mandi) && (!fasal || r.Fasal===fasal))
+    .sort((a,b)=> (a.DateISO||"").localeCompare(b.DateISO||""));
+  const rows7 = lastN(rows, 7);
+  const rows30 = lastN(rows, 30);
+
+  const ctx7 = document.getElementById("chart7").getContext("2d");
+  const ctx30 = document.getElementById("chart30").getContext("2d");
+
+  chart7Inst = new Chart(ctx7,{
+    type:"line",
+    data:{labels: rows7.map(r=>r.Date),
+      datasets:[{data: rows7.map(r=>Number(r.Modal||0)),
+        borderColor:"#0f9d58", backgroundColor:"rgba(15,157,88,0.12)", tension:0.25, fill:true}]},
+    options:{responsive:true,plugins:{legend:{display:false}}}
+  });
+
+  chart30Inst = new Chart(ctx30,{
+    type:"line",
+    data:{labels: rows30.map(r=>r.Date),
+      datasets:[{data: rows30.map(r=>Number(r.Modal||0)),
+        borderColor:"#FFD54A", backgroundColor:"rgba(255,213,74,0.12)", tension:0.25, fill:true}]},
+    options:{responsive:true,plugins:{legend:{display:false}}}
+  });
+
+  document.getElementById("trendModal").style.display="flex";
+}
+
+/* ========== BHAV UI ========== */
+function bhavUI(){
+  return `
+    <div class="filters">
+      <div class="seg">
+        <button id="btnMW" class="active" type="button">Mandi Wise</button>
+        <button id="btnFW" type="button">Fasal Wise</button>
+      </div>
+
+      <div id="mwBox" class="grid">
+        <select id="mwState"><option value="">Select State</option></select>
+        <select id="mwMandi"><option value="">Select Mandi</option></select>
+      </div>
+
+      <div id="fwBox" style="display:none;">
+        <select id="fwFasal"><option value="">Select Fasal</option></select>
+      </div>
+
+      <div class="small">Trend पर क्लिक → 7 days + 30 days Modal chart</div>
+    </div>
+    <div id="bhavTableWrap"></div>
+  `;
+}
+let bhavMode="mandiWise";
+function setBhavMode(m){
+  bhavMode=m;
+  document.getElementById("btnMW").classList.toggle("active", m==="mandiWise");
+  document.getElementById("btnFW").classList.toggle("active", m==="fasalWise");
+  document.getElementById("mwBox").style.display = (m==="mandiWise") ? "grid" : "none";
+  document.getElementById("fwBox").style.display = (m==="fasalWise") ? "block" : "none";
+  document.getElementById("bhavTableWrap").innerHTML="";
+}
+function renderBhavTableMandiWise(rows){
+  const html=`
+  <table><thead>
+    <tr><th>Date</th><th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
+  </thead><tbody>
+    ${rows.map(r=>`
+      <tr>
+        <td>${r.Date||""}</td><td>${r.Fasal||""}</td>
+        <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
+        <td class="trendLink" data-mandi="${r.Mandi||""}" data-fasal="${r.Fasal||""}">${formatTrend(r.Trend||"")}</td>
+      </tr>
+    `).join("")}
+  </tbody></table>`;
+  bhavTableWrap.innerHTML=html;
+  document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
+    c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
+  });
+}
+function renderBhavTableFasalWise(rows){
+  const html=`
+  <table><thead>
+    <tr><th>Date</th><th>Mandi</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
+  </thead><tbody>
+    ${rows.map(r=>`
+      <tr>
+        <td>${r.Date||""}</td><td>${r.Mandi||""}</td>
+        <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
+        <td class="trendLink" data-mandi="${r.Mandi||""}" data-fasal="${r.Fasal||""}">${formatTrend(r.Trend||"")}</td>
+      </tr>
+    `).join("")}
+  </tbody></table>`;
+  bhavTableWrap.innerHTML=html;
+  document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
+    c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
+  });
+}
+
+/* ========== INIT ========== */
 async function init(){
   // Bhav
   bhav.innerHTML = `<h3>📊 Bhav</h3>` + bhavUI();
-  const b = await load("Bhav");
-  // normalize dates for filtering: convert "17 Feb 2026" to YYYY-MM-DD if possible
-  bhavData = b.map(r=>{
-    const dateStr = (r.Date||"").toString().trim();
-    // Try parse date like "17 Feb 2026"
-    let iso="";
-    const d = new Date(dateStr);
-    if(!isNaN(d.getTime())){
-      const mm = String(d.getMonth()+1).padStart(2,"0");
-      const dd = String(d.getDate()).padStart(2,"0");
-      iso = `${d.getFullYear()}-${mm}-${dd}`;
-    }
-    return {...r, DateISO: iso || ""};
-  }).reverse(); // latest on top
-  fillBhavDropdowns();
-  renderBhavTable(bhavData);
+  btnMW.onclick=()=>setBhavMode("mandiWise");
+  btnFW.onclick=()=>setBhavMode("fasalWise");
 
-  // News
-  const n = (await load("News")).reverse();
+  const b = await load("Bhav");
+  bhavAll = b.map(r=>({
+    Date: getField(r,["Date","date"]),
+    DateISO: toISO(getField(r,["Date","date"])),
+    State: getField(r,["State","state"]),
+    Mandi: getField(r,["Mandi","mandi","MandiName"]),
+    Fasal: getField(r,["Fasal","fasal","Crop"]),
+    Min: getField(r,["Min","min"]),
+    Max: getField(r,["Max","max"]),
+    Modal: getField(r,["Modal","modal"]),
+    Trend: getField(r,["Trend","trend"])
+  })).filter(x=>x.Date || x.Mandi || x.Fasal);
+
+  // ✅ update detection: latest row signature (strong)
+  const lastRow = (b && b.length) ? b[b.length-1] : null;
+  const signature = lastRow ? JSON.stringify(lastRow) : "";
+  const oldSig = localStorage.getItem("mg_last_bhav_sig") || "";
+  if(signature && oldSig && signature !== oldSig){
+    fireBhavUpdateAlert();
+  }
+  if(signature) localStorage.setItem("mg_last_bhav_sig", signature);
+
+  // dropdowns
+  unique(bhavAll.map(r=>r.State)).forEach(s=> mwState.insertAdjacentHTML("beforeend", `<option>${s}</option>`));
+  unique(bhavAll.map(r=>r.Fasal)).forEach(f=> fwFasal.insertAdjacentHTML("beforeend", `<option>${f}</option>`));
+
+  mwState.onchange=()=>{
+    mwMandi.innerHTML=`<option value="">Select Mandi</option>`;
+    const s=mwState.value;
+    unique(bhavAll.filter(r=>!s || r.State===s).map(r=>r.Mandi))
+      .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${m}</option>`));
+    bhavTableWrap.innerHTML="";
+  };
+  mwMandi.onchange=()=>{
+    const s=mwState.value, m=mwMandi.value;
+    if(!m){bhavTableWrap.innerHTML=""; return;}
+    const rows = bhavAll
+      .filter(r=>(!s || r.State===s) && r.Mandi===m)
+      .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
+    renderBhavTableMandiWise(rows);
+  };
+  fwFasal.onchange=()=>{
+    const f=fwFasal.value;
+    if(!f){bhavTableWrap.innerHTML=""; return;}
+    const rows = bhavAll
+      .filter(r=>r.Fasal===f)
+      .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
+    renderBhavTableFasalWise(rows);
+  };
+  setBhavMode("mandiWise");
+
+  // News (exclusive)
+  const n=(await load("News")).reverse();
   news.innerHTML = `<h3>📰 News</h3>` + n.map((x,i)=>`
     <div class="card">
-      <div class="row" onclick="toggle('n${i}')">
-        <img src="${x.ImageURL||""}" onerror="this.style.display='none'">
-        <div class="text">${x.Title||""}</div>
+      <div class="row" onclick="openExclusive('newsDetail','n${i}')">
+        <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
+        <div class="text">${getField(x,["Title","title"])||""}</div>
       </div>
-      <div id="n${i}" class="detail">${x.Detail||""}</div>
+      <div id="n${i}" class="detail newsDetail">${getField(x,["Detail","detail","Full","full"])||""}</div>
     </div>
   `).join("");
 
-  // Trend
-  const t = (await load("Trend")).reverse();
+  // Teji/Mandi posts
+  const t=(await load("Trend")).reverse();
   trend.innerHTML = `<h3>📈 Teji/Mandi</h3>` + t.map((x,i)=>`
     <div class="card">
-      <div class="row" onclick="toggle('t${i}')">
-        <img src="${x.ImageURL||""}" onerror="this.style.display='none'">
-        <div class="text">${x.Title||""}</div>
+      <div class="row" onclick="openExclusive('trendDetail','t${i}')">
+        <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
+        <div class="text">${getField(x,["Title","title"])||""}</div>
       </div>
-      <div id="t${i}" class="detail">${x.Detail||""}</div>
+      <div id="t${i}" class="detail trendDetail">${getField(x,["Detail","detail","Full","full"])||""}</div>
     </div>
   `).join("");
 
   // Weather
-  const w = (await load("Weather")).reverse();
+  const w=(await load("Weather")).reverse();
   weather.innerHTML = `<h3>🌦️ Mausam</h3>` + w.map((x,i)=>`
-    <div class="card" onclick="toggle('w${i}')">
-      <b>${x.Title||""}</b>
-      <div id="w${i}" class="detail">${x.Detail||""}</div>
+    <div class="card">
+      <div class="row" onclick="openExclusive('weatherDetail','w${i}')">
+        <div class="text">${getField(x,["Title","title"])||""}</div>
+      </div>
+      <div id="w${i}" class="detail weatherDetail">${getField(x,["Detail","detail","Full","full"])||""}</div>
     </div>
   `).join("");
 
-  // Video
-  const v = (await load("Video")).reverse();
-  video.innerHTML = `<h3>🎥 Video</h3>` + v.map((x,i)=>{
-    const id = ytId(x.VideoURL||x.VideoUrl||x.url||x.URL||"");
-    return `
-      <div class="card">
-        <div class="row" onclick="playVideo(this,'${id}')">
-          <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
-          <div class="text">${x.Title||""}</div>
+  // Video (modal)
+  const v=(await load("Video")).reverse();
+  if(!v || v.length===0){
+    video.innerHTML = `<h3>🎥 Video</h3><div class="card">Video sheet empty है.</div>`;
+  }else{
+    video.innerHTML = `<h3>🎥 Video</h3>` + v.map((x,i)=>{
+      const title = getField(x,["Title","title","Name","name"]);
+      const link  = getField(x,["VideoURL","videourl","VideoUrl","video","link","url","YouTubeLink","youtubelink"]);
+      const id = ytId(link);
+      if(!id) return `<div class="card"><b>${title||"Video"}</b><div class="small">Invalid link</div></div>`;
+      return `
+        <div class="card">
+          <div class="row" onclick="openVideo('${id}','${(title||"").replace(/'/g,"\\'")}')">
+            <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" onerror="this.style.display='none'">
+            <div class="text">${title||""}</div>
+          </div>
         </div>
-      </div>
-    `;
-  }).join("");
+      `;
+    }).join("");
+  }
 }
 
-init();
-</script>
+/* poll for bhav updates every 5 min */
+async function pollBhav(){
+  setInterval(async ()=>{
+    try{
+      const b = await load("Bhav");
+      const lastRow = (b && b.length) ? b[b.length-1] : null;
+      const sig = lastRow ? JSON.stringify(lastRow) : "";
+      const oldSig = localStorage.getItem("mg_last_bhav_sig") || "";
+      if(sig && oldSig && sig !== oldSig){
+        localStorage.setItem("mg_last_bhav_sig", sig);
+        fireBhavUpdateAlert();
+      }
+      if(sig && !oldSig){
+        localStorage.setItem("mg_last_bhav_sig", sig);
+      }
+    }catch(e){}
+  }, 300000);
+}
 
+init().then(pollBhav);
+</script>
 </body>
 </html>
