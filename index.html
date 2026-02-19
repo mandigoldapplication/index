@@ -10,10 +10,12 @@
 :root{
   --bg:#f4f4f4; --card:#ffffff; --text:#111; --muted:#444;
   --green:#0f9d58; --border:#ddd; --gold:#FFD54A;
+  --red:#e53935; --blue:#2563eb; --purple:#7c3aed;
 }
 body.dark{
   --bg:#0d0f12; --card:#111; --text:#fff; --muted:#bfc6cc;
   --green:#0f9d58; --border:#2a2f36; --gold:#FFD54A;
+  --red:#ff5a5a; --blue:#60a5fa; --purple:#a78bfa;
 }
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);}
 
@@ -32,24 +34,36 @@ header{
 .brand{font-weight:900;letter-spacing:.5px;font-size:22px;line-height:1; white-space:nowrap;}
 .brand .mandi{color:#fff;}
 .brand .gold{color:var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.3);}
-.actions{display:flex;gap:8px;align-items:center;}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
 .btnSmall{
   background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
   color:#fff; padding:6px 10px; border-radius:999px;
   cursor:pointer; font-size:12px; font-weight:800;
 }
+.netChip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);
+  color:#fff; font-weight:900; font-size:12px; white-space:nowrap;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#b8c2cc;}
+.netChip.online .dot{background:#22c55e;}
+.netChip.offline .dot{background:#ef4444;}
 
 .tab{display:none;padding:12px;padding-bottom:96px;}
 .tab.active{display:block;}
 
-/* ✅ Premium section card (NO soft tint backgrounds) */
+/* Premium section card */
 .section{
   border:1px solid var(--border);
   border-radius:14px;
   background:var(--card);
   margin:14px 0;
   overflow:hidden;
+  transition:transform .15s ease, box-shadow .15s ease;
 }
+.section:active{transform:scale(.995);}
 .sectionHead{
   padding:10px 12px;
   font-weight:900;
@@ -79,7 +93,7 @@ select, input{
   box-sizing:border-box;
 }
 
-/* table (✅ full-width look) */
+/* table (full-width look) */
 table{width:100%;border-collapse:collapse;background:var(--card);border-radius:0;overflow:visible;}
 th,td{border:1px solid var(--border);padding:9px;font-size:13.5px;text-align:center;}
 td{font-weight:600;}
@@ -173,7 +187,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 .yt{background:#FF0000;}
 .tg{background:#229ED9;}
 
-/* ✅ Total rows found badge */
+/* Total rows found badge */
 .rowsBadge{
   display:flex;
   align-items:center;
@@ -188,7 +202,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 }
 .rowsBadge b{font-weight:900;}
 
-/* ✅ Added features styles (Favorites/Compare/Load more) */
+/* Added features styles */
 .pillRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -197,6 +211,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   background:var(--bg);
   cursor:pointer;
   font-weight:900;font-size:12px;
+  user-select:none;
 }
 .pill .x{opacity:.8;font-weight:900;}
 .pill:hover{border-color:var(--green);}
@@ -207,7 +222,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 .miniBtn.primary{background:var(--green);border-color:var(--green);color:#fff;}
 .inlineRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
-/* ✅ Onboarding */
+/* Onboarding */
 .onboardBox{
   width:min(560px,92vw);
   background:var(--bg);
@@ -218,6 +233,61 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 .onboardTitle{font-weight:900;font-size:18px;margin-bottom:8px;}
 .onboardList{margin:0;padding-left:18px;color:var(--muted);font-weight:700;line-height:1.6;}
 .onboardFooter{display:flex;justify-content:flex-end;margin-top:12px;}
+
+/* Quick view */
+.quickGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.quickBox{border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:10px;}
+.quickTitle{font-weight:900;margin-bottom:8px;}
+.listItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border);}
+.listItem:last-child{border-bottom:0;}
+.badge{
+  font-size:12px;
+  padding:5px 8px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--card);
+  font-weight:900;
+}
+
+/* Skeleton */
+.skel{
+  position:relative;
+  overflow:hidden;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+.skel::after{
+  content:"";
+  position:absolute; top:0; left:-40%;
+  width:40%; height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  animation: shimmer 1.1s infinite;
+}
+body.dark .skel::after{
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+}
+@keyframes shimmer{0%{left:-40%;}100%{left:120%;}}
+.skelLine{height:14px;margin:10px;border-radius:10px;border:0;}
+.skelLine.big{height:18px;}
+.fadeIn{animation: fadein .18s ease;}
+@keyframes fadein{from{opacity:.6; transform:translateY(2px);}to{opacity:1; transform:translateY(0);}}
+
+/* Empty states */
+.emptyBox{
+  border:1px dashed var(--border);
+  border-radius:12px;
+  padding:14px;
+  background:var(--bg);
+  color:var(--muted);
+  font-weight:900;
+  text-align:center;
+}
+
+/* Insights popup */
+#insightModal .box{width:min(560px,92vw);}
+.kv{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--border);background:var(--card);padding:10px;border-radius:12px;margin:8px 0;}
+.kv b{font-weight:900;}
 </style>
 </head>
 
@@ -228,6 +298,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 <header>
   <div class="brand"><span class="mandi">मंडी</span> <span class="gold">GOLD</span></div>
   <div class="actions">
+    <div id="netChip" class="netChip online" title="Network status"><span class="dot"></span><span id="netText">Online</span></div>
     <button class="btnSmall" onclick="enableAlerts()">🔔 Alerts</button>
     <button class="btnSmall" onclick="toggleTheme()">🌗 Theme</button>
   </div>
@@ -247,7 +318,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   <button id="btn-video" onclick="openTab('video')"><div class="icon">🎥</div><div>Video</div></button>
 </div>
 
-<!-- ✅ Onboarding Modal (1-time) -->
+<!-- Onboarding Modal (1-time) -->
 <div id="onboardModal" class="modal" style="z-index:999999;">
   <div class="onboardBox">
     <div class="onboardTitle">👋 Welcome to मंडी GOLD</div>
@@ -269,7 +340,6 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
       <div style="font-weight:900;font-size:16px;" id="trendTitle">📊 Trend</div>
 
       <div class="inlineRow" style="margin-left:auto;">
-        <!-- ✅ Compare Controls -->
         <label class="pill" style="cursor:default;">
           <input id="cmpEnable" type="checkbox" style="width:auto;margin:0 6px 0 0;"> Compare
         </label>
@@ -284,7 +354,6 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
       <button class="closeBtn" onclick="closeTrend()">✖ Close</button>
     </div>
 
-    <!-- ✅ Trend insights -->
     <div class="card" style="margin:0 0 10px 0;">
       <div style="font-weight:900;margin-bottom:8px;">📌 Insights</div>
       <div class="statsGrid">
@@ -300,6 +369,11 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
           <div class="statNum" id="insAvg">—</div>
           <div class="statLabel">Avg Modal</div>
         </div>
+      </div>
+
+      <div id="cmpSummary" class="card" style="margin:10px 0 0 0;">
+        <div style="font-weight:900;margin-bottom:6px;">Compare Summary</div>
+        <div class="small" id="cmpSummaryText">Compare ON करके mandi/fasal select करो.</div>
       </div>
     </div>
 
@@ -322,6 +396,20 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
       <button class="closeBtn" onclick="closeVideo()">✖ Close</button>
     </div>
     <div id="videoFrameWrap"></div>
+  </div>
+</div>
+
+<!-- Price Range Insight Modal + Share -->
+<div id="insightModal" class="modal">
+  <div class="box">
+    <div class="modalTop">
+      <div style="font-weight:900;font-size:16px;" id="insightTitle">📌 Insight</div>
+      <button class="closeBtn" onclick="closeInsight()">✖ Close</button>
+    </div>
+    <div id="insightBody"></div>
+    <div class="inlineRow" style="margin-top:10px;justify-content:flex-end;">
+      <button class="miniBtn primary" onclick="shareInsightWA()">📤 WhatsApp Share</button>
+    </div>
   </div>
 </div>
 
@@ -385,7 +473,32 @@ function fireBhavUpdateAlert(){
   }
 }
 
-/* ✅ Better load + cache + error UI */
+/* Offline Mode + cache + better error UI */
+let wasOffline = !navigator.onLine;
+function setNetChip(){
+  const chip = document.getElementById("netChip");
+  const txt = document.getElementById("netText");
+  if(!chip || !txt) return;
+  const offline = !navigator.onLine;
+  chip.classList.toggle("offline", offline);
+  chip.classList.toggle("online", !offline);
+  txt.textContent = offline ? "Offline" : "Online";
+}
+window.addEventListener("offline", ()=>{
+  wasOffline = true;
+  setNetChip();
+  showToast("⚠️ Offline mode: last saved data दिखेगा");
+});
+window.addEventListener("online", ()=>{
+  setNetChip();
+  if(wasOffline){
+    wasOffline = false;
+    showToast("✅ Fresh data loaded");
+    softRefreshAll();
+  }
+});
+setNetChip();
+
 async function loadRaw(sheet){
   const r = await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`, { cache:"no-store" });
   if(!r.ok) throw new Error("HTTP " + r.status);
@@ -395,7 +508,9 @@ async function loadCached(sheet){
   const key="mg_cache_"+sheet;
   const cached = localStorage.getItem(key);
   if(cached){
-    loadRaw(sheet).then(d=>localStorage.setItem(key, JSON.stringify(d))).catch(()=>{});
+    if(navigator.onLine){
+      loadRaw(sheet).then(d=>localStorage.setItem(key, JSON.stringify(d))).catch(()=>{});
+    }
     try{ return JSON.parse(cached); }catch(e){}
   }
   const d = await loadRaw(sheet);
@@ -408,6 +523,15 @@ async function load(sheet){
   }catch(e){
     showToast("⚠️ Data load failed. Internet check karo.");
     return [];
+  }
+}
+async function softRefreshAll(){
+  const sheets=["Bhav","News","Trend","Weather","Video","Ticker"];
+  for(const s of sheets){
+    try{
+      const d = await loadRaw(s);
+      localStorage.setItem("mg_cache_"+s, JSON.stringify(d));
+    }catch(e){}
   }
 }
 
@@ -440,7 +564,7 @@ function toNum(x){
   return isNaN(n) ? 0 : n;
 }
 
-/* ✅ Trend format: Teji = green ▲ +200, Mandi = red ▼ -200 */
+/* Trend format: Teji = green ▲ +200, Mandi = red ▼ -200 */
 function formatTrend(val){
   const raw=(val||"").toString().trim();
   const s=raw.toLowerCase();
@@ -448,11 +572,11 @@ function formatTrend(val){
   const n = (s.match(/-?\d+/)||[""])[0];
   if(s.startsWith("teji")){
     const num = n || "";
-    return `<span style="color:#0f9d58;font-weight:900;">▲ +${num}</span>`;
+    return `<span style="color:var(--green);font-weight:900;">▲ +${num}</span>`;
   }
   if(s.startsWith("mandi")){
     const num = n || "";
-    return `<span style="color:#e53935;font-weight:900;">▼ -${num}</span>`;
+    return `<span style="color:var(--red);font-weight:900;">▼ -${num}</span>`;
   }
   if(s.startsWith("neutral")) return `<span style="color:#f59e0b;font-weight:900;">● Neutral</span>`;
   return escapeHtml(raw);
@@ -472,7 +596,7 @@ function tickerHTML(items){
   if(!items || items.length===0) return "";
   const line = items.map(x=>`<span>• ${escapeHtml(x)}</span>`).join("");
   return `
-    <div class="tickerWrap">
+    <div class="tickerWrap fadeIn">
       <div class="tickerLabel">Latest</div>
       <div class="marquee">
         <div class="track">${line}${line}</div>
@@ -481,7 +605,7 @@ function tickerHTML(items){
   `;
 }
 
-/* STATS COUNTER (3 sec) */
+/* STATS COUNTER */
 function animateCount(el, target){
   if(!el) return;
   let cur = 0;
@@ -499,7 +623,7 @@ function animateCount(el, target){
   }, Math.round(1000/fps));
 }
 
-/* ✅ Onboarding */
+/* Onboarding */
 function closeOnboarding(){
   localStorage.setItem("mg_onboard_seen","1");
   document.getElementById("onboardModal").style.display="none";
@@ -511,11 +635,12 @@ function maybeShowOnboarding(){
   }
 }
 
-/* ✅ Favorites (Mandi/Fasal) */
+/* Favorites */
 let bhavAll=[];
 function favKey(){ return "mg_favs_v1"; }
 function getFavs(){ return JSON.parse(localStorage.getItem(favKey())||"[]"); }
 function setFavs(list){ localStorage.setItem(favKey(), JSON.stringify(list)); }
+
 function addFav(type, value){
   const v=(value||"").toString().trim();
   if(!v) return;
@@ -525,12 +650,14 @@ function addFav(type, value){
     setFavs(favs.slice(0,12));
     showToast("⭐ Saved to Favorites");
     renderFavs();
+    renderWatchlistUpdates();
   }
 }
 function removeFav(type, value){
   const favs=getFavs().filter(x=>!(x.type===type && x.value===value));
   setFavs(favs);
   renderFavs();
+  renderWatchlistUpdates();
 }
 function renderFavs(){
   const wrap=document.getElementById("favWrap");
@@ -541,8 +668,8 @@ function renderFavs(){
     return;
   }
   wrap.innerHTML = `
-    <div class="pillRow">
-      ${favs.map(f=>`
+    <div class="pillRow" id="favPills">
+      ${favs.map((f)=>`
         <div class="pill" data-type="${escapeHtml(f.type)}" data-val="${escapeHtml(f.value)}">
           ${f.type==="mandi" ? "📍" : "🌾"} ${escapeHtml(f.value)}
           <span class="x" data-x="1" title="Remove">✖</span>
@@ -550,35 +677,93 @@ function renderFavs(){
       `).join("")}
     </div>
   `;
-  wrap.querySelectorAll(".pill").forEach(p=>{
+  const pills = wrap.querySelectorAll(".pill");
+  pills.forEach(p=>{
     p.onclick=(e)=>{
       const type=p.dataset.type, val=p.dataset.val;
       if(e.target && e.target.dataset && e.target.dataset.x==="1"){
         removeFav(type,val);
         return;
       }
-      if(type==="mandi"){
-        setBhavMode("mandiWise");
-        const mwState=document.getElementById("mwState");
-        const mwMandi=document.getElementById("mwMandi");
-        const row = bhavAll.find(r=>r.Mandi===val);
-        if(row && row.State){
-          mwState.value=row.State;
-          mwState.onchange();
-        }
-        setTimeout(()=>{
-          mwMandi.value=val;
-          mwMandi.onchange();
-        }, 0);
-      }else if(type==="fasal"){
-        setBhavMode("fasalWise");
-        const fwFasal=document.getElementById("fwFasal");
-        fwFasal.value=val;
-        fwFasal.onchange();
-      }
+      applyFavorite(type,val);
       showToast("⭐ Favorite applied");
     };
   });
+}
+function applyFavorite(type, val){
+  if(type==="mandi"){
+    setBhavMode("mandiWise");
+    const mwState=document.getElementById("mwState");
+    const mwMandi=document.getElementById("mwMandi");
+    const row = bhavAll.find(r=>r.Mandi===val);
+    if(row && row.State){
+      mwState.value=row.State;
+      mwState.onchange();
+    }
+    setTimeout(()=>{
+      mwMandi.value=val;
+      mwMandi.onchange();
+    }, 0);
+  }else if(type==="fasal"){
+    setBhavMode("fasalWise");
+    const fwFasal=document.getElementById("fwFasal");
+    fwFasal.value=val;
+    fwFasal.onchange();
+  }
+}
+
+/* WhatsApp Share */
+let lastShareText = "";
+function waShare(text){
+  const msg = encodeURIComponent(text||"");
+  window.open(`https://wa.me/?text=${msg}`, "_blank");
+}
+function makeShareText(r){
+  const trendText = (r.Trend||"").toString().toLowerCase().startsWith("teji") ? `🟢 ${r.Trend}` :
+                    (r.Trend||"").toString().toLowerCase().startsWith("mandi") ? `🔴 ${r.Trend}` :
+                    (r.Trend||"");
+  return `📍 ${r.Mandi || ""} | 🌾 ${r.Fasal || ""}\n🗓️ ${r.Date || ""}\nMin: ${r.Min || ""} | Max: ${r.Max || ""} | Modal: ${r.Modal || ""}\nTrend: ${trendText}\n\n— मंडी GOLD`;
+}
+
+/* Price Insight modal */
+function closeInsight(){ document.getElementById("insightModal").style.display="none"; }
+function shareInsightWA(){ if(lastShareText) waShare(lastShareText); }
+function openInsight(row){
+  const title = `📌 ${row.Mandi || ""} | ${row.Fasal || ""}`;
+  document.getElementById("insightTitle").textContent = title;
+
+  const spread = toNum(row.Max) - toNum(row.Min);
+
+  const series = bhavAll
+    .filter(x=>x.Mandi===row.Mandi && x.Fasal===row.Fasal)
+    .sort((a,b)=> (a.DateISO||"").localeCompare(b.DateISO||""));
+  const last7 = series.slice(Math.max(0, series.length-7));
+  const vals = last7.map(x=>toNum(x.Modal)).filter(v=>v>0);
+  const avg7 = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+
+  let label = "—";
+  if(vals.length){
+    const hi = Math.max(...vals);
+    const lo = Math.min(...vals);
+    const cur = toNum(row.Modal);
+    const range = Math.max(1, hi-lo);
+    if((cur-lo)/range <= 0.25) label = "Support zone";
+    else if((hi-cur)/range <= 0.25) label = "Resistance zone";
+    else label = "Mid range";
+  }
+
+  const html = `
+    <div class="kv"><div><b>Min/Max Spread</b></div><div>${Math.round(spread)}</div></div>
+    <div class="kv"><div><b>Avg Modal (Last 7 days)</b></div><div>${avg7 || "—"}</div></div>
+    <div class="kv"><div><b>Zone</b></div><div>${label}</div></div>
+    <div class="card" style="margin-top:10px;">
+      <div style="font-weight:900;margin-bottom:6px;">Quick Share</div>
+      <div class="small" style="white-space:pre-wrap;">${escapeHtml(makeShareText(row))}</div>
+    </div>
+  `;
+  document.getElementById("insightBody").innerHTML = html;
+  lastShareText = makeShareText(row);
+  document.getElementById("insightModal").style.display="flex";
 }
 
 /* YOUTUBE */
@@ -598,7 +783,7 @@ function openVideo(id, title){
   document.getElementById("videoModal").style.display="flex";
 }
 
-/* TREND CHART */
+/* TREND CHART + Compare */
 let chart7Inst=null, chart30Inst=null;
 let currentTrendBase={mandi:"", fasal:""};
 
@@ -612,6 +797,7 @@ function closeTrend(){
   if(cmpEnable){ cmpEnable.checked=false; }
   if(cmpMandi){ cmpMandi.style.display="none"; cmpMandi.value=""; }
   if(cmpFasal){ cmpFasal.style.display="none"; cmpFasal.value=""; }
+  document.getElementById("cmpSummaryText").textContent="Compare ON करके mandi/fasal select करो.";
 }
 function lastN(arr,n){return arr.slice(Math.max(0, arr.length-n));}
 function getSeries(mandi, fasal){
@@ -619,7 +805,12 @@ function getSeries(mandi, fasal){
     .filter(r => (!mandi || r.Mandi===mandi) && (!fasal || r.Fasal===fasal))
     .sort((a,b)=> (a.DateISO||"").localeCompare(b.DateISO||""));
 }
-
+function pctChange(rows){
+  if(!rows || rows.length<2) return null;
+  const a = toNum(rows[0].Modal), b = toNum(rows[rows.length-1].Modal);
+  if(a<=0) return null;
+  return ((b-a)/a)*100;
+}
 function updateTrendInsights(baseRows){
   const ins7 = document.getElementById("ins7");
   const insHL = document.getElementById("insHL");
@@ -634,7 +825,7 @@ function updateTrendInsights(baseRows){
     const last = toNum(rows7[rows7.length-1].Modal);
     const diff = last - first;
     const sign = diff >= 0 ? "+" : "";
-    ins7.innerHTML = `<span style="color:${diff>=0 ? "#0f9d58" : "#e53935"};font-weight:900;">${sign}${Math.round(diff)}</span>`;
+    ins7.innerHTML = `<span style="color:${diff>=0 ? "var(--green)" : "var(--red)"};font-weight:900;">${sign}${Math.round(diff)}</span>`;
   }else{
     ins7.textContent = "—";
   }
@@ -656,7 +847,6 @@ function updateTrendInsights(baseRows){
     insAvg.textContent = "—";
   }
 }
-
 function buildCharts(baseRows, cmpRows){
   updateTrendInsights(baseRows);
 
@@ -676,30 +866,44 @@ function buildCharts(baseRows, cmpRows){
   const cmp7 = (cmpMap ? labels7.map(d=> (cmpMap.has(d) ? cmpMap.get(d) : null)) : null);
   const cmp30 = (cmpMap ? labels30.map(d=> (cmpMap.has(d) ? cmpMap.get(d) : null)) : null);
 
+  const diff7 = (cmp7 ? base7.map((v,i)=> (cmp7[i]==null ? null : (v - cmp7[i]))) : null);
+  const diff30 = (cmp30 ? base30.map((v,i)=> (cmp30[i]==null ? null : (v - cmp30[i]))) : null);
+
   const ctx7 = document.getElementById("chart7").getContext("2d");
   const ctx30 = document.getElementById("chart30").getContext("2d");
 
   if(chart7Inst){ chart7Inst.destroy(); chart7Inst=null; }
   if(chart30Inst){ chart30Inst.destroy(); chart30Inst=null; }
 
+  const showLegend = !!(cmp7 || cmp30);
+
   const ds7 = [
-    {data: base7, borderColor:"#0f9d58", backgroundColor:"rgba(15,157,88,0.12)", tension:0.25, fill:true}
+    {label:"Base", data: base7, borderColor:"var(--green)", backgroundColor:"rgba(15,157,88,0.12)", tension:0.25, fill:true}
   ];
   const ds30 = [
-    {data: base30, borderColor:"#FFD54A", backgroundColor:"rgba(255,213,74,0.12)", tension:0.25, fill:true}
+    {label:"Base", data: base30, borderColor:"var(--gold)", backgroundColor:"rgba(255,213,74,0.12)", tension:0.25, fill:true}
   ];
 
   if(cmp7){
-    ds7.push({data: cmp7, borderColor:"#2563eb", backgroundColor:"rgba(37,99,235,0.08)", tension:0.25, fill:false});
+    ds7.push({label:"Compare", data: cmp7, borderColor:"var(--blue)", backgroundColor:"rgba(37,99,235,0.08)", tension:0.25, fill:false});
+    ds7.push({label:"Diff (Base-Compare)", data: diff7, borderColor:"var(--red)", backgroundColor:"rgba(229,57,53,0.06)", tension:0.25, fill:false, borderDash:[6,4]});
   }
   if(cmp30){
-    ds30.push({data: cmp30, borderColor:"#7c3aed", backgroundColor:"rgba(124,58,237,0.08)", tension:0.25, fill:false});
+    ds30.push({label:"Compare", data: cmp30, borderColor:"var(--purple)", backgroundColor:"rgba(124,58,237,0.08)", tension:0.25, fill:false});
+    ds30.push({label:"Diff (Base-Compare)", data: diff30, borderColor:"var(--red)", backgroundColor:"rgba(229,57,53,0.06)", tension:0.25, fill:false, borderDash:[6,4]});
   }
 
-  chart7Inst = new Chart(ctx7,{ type:"line", data:{labels: labels7, datasets: ds7}, options:{responsive:true,plugins:{legend:{display:false}}} });
-  chart30Inst = new Chart(ctx30,{ type:"line", data:{labels: labels30, datasets: ds30}, options:{responsive:true,plugins:{legend:{display:false}}} });
+  chart7Inst = new Chart(ctx7,{
+    type:"line",
+    data:{labels: labels7, datasets: ds7},
+    options:{responsive:true,plugins:{legend:{display:showLegend}}}
+  });
+  chart30Inst = new Chart(ctx30,{
+    type:"line",
+    data:{labels: labels30, datasets: ds30},
+    options:{responsive:true,plugins:{legend:{display:showLegend}}}
+  });
 }
-
 function openTrend(mandi, fasal){
   currentTrendBase = {mandi: mandi||"", fasal: fasal||""};
   document.getElementById("trendTitle").textContent = `📊 Trend: ${mandi || ""}${fasal ? " | "+fasal : ""}`;
@@ -721,6 +925,7 @@ function openTrend(mandi, fasal){
       cmpFasal.style.display = on ? "block" : "none";
       if(!on){
         cmpMandi.value=""; cmpFasal.value="";
+        document.getElementById("cmpSummaryText").textContent="Compare ON करके mandi/fasal select करो.";
         buildCharts(getSeries(currentTrendBase.mandi, currentTrendBase.fasal), null);
       }else{
         buildCharts(getSeries(currentTrendBase.mandi, currentTrendBase.fasal), null);
@@ -732,7 +937,32 @@ function openTrend(mandi, fasal){
       const cm = cmpMandi.value || "";
       const cf = cmpFasal.value || "";
       const cmpRows = (cm || cf) ? getSeries(cm, cf) : null;
-      buildCharts(getSeries(currentTrendBase.mandi, currentTrendBase.fasal), cmpRows);
+
+      const base = getSeries(currentTrendBase.mandi, currentTrendBase.fasal);
+      buildCharts(base, cmpRows);
+
+      const t = document.getElementById("cmpSummaryText");
+      if(!cmpRows || !cmpRows.length){
+        t.textContent="Compare mandi/fasal select करो.";
+        return;
+      }
+      const b7 = lastN(base,7), c7 = lastN(cmpRows,7);
+      const bPct = pctChange(b7);
+      const cPct = pctChange(c7);
+      const bName = `${currentTrendBase.mandi || ""}${currentTrendBase.fasal ? (" | "+currentTrendBase.fasal) : ""}`.trim();
+      const cName = `${cm || ""}${cf ? (" | "+cf) : ""}`.trim();
+      if(bPct==null || cPct==null){
+        t.textContent="Compare के लिए data कम है.";
+        return;
+      }
+      const stronger = (bPct > cPct) ? `🏆 Stronger: ${bName}` : (cPct > bPct) ? `🏆 Stronger: ${cName}` : "🤝 Equal strength";
+      t.innerHTML = `
+        <div class="small">
+          Base (7d): <b style="color:${bPct>=0?'var(--green)':'var(--red)'};">${bPct.toFixed(1)}%</b> |
+          Compare (7d): <b style="color:${cPct>=0?'var(--green)':'var(--red)'};">${cPct.toFixed(1)}%</b><br>
+          ${escapeHtml(stronger)}
+        </div>
+      `;
     }
     cmpMandi.onchange=refreshCompare;
     cmpFasal.onchange=refreshCompare;
@@ -741,7 +971,7 @@ function openTrend(mandi, fasal){
   document.getElementById("trendModal").style.display="flex";
 }
 
-/* ✅ Total rows found */
+/* Total rows found */
 function setRowsFound(n){
   const badge = document.getElementById("rowsBadge");
   const count = document.getElementById("rowsCount");
@@ -750,7 +980,7 @@ function setRowsFound(n){
   count.textContent = n;
 }
 
-/* ✅ Pagination: show first 50 rows + Load more */
+/* Pagination: show first 50 rows + Load more */
 const PAGE_SIZE = 50;
 let currentRowsAll = [];
 let currentPage = 1;
@@ -770,7 +1000,7 @@ function getPagedRows(){
   const end = currentPage * PAGE_SIZE;
   return currentRowsAll.slice(0, end);
 }
-function drawTablePage(scrollKeep){
+function drawTablePage(){
   const rows = getPagedRows();
   setRowsFound(currentRowsAll.length);
 
@@ -779,9 +1009,161 @@ function drawTablePage(scrollKeep){
   }else{
     drawFasalWise(rows);
   }
-  if(scrollKeep){
-    // do nothing
+}
+
+/* Quick view + movers */
+function topCounts(arr, key, n){
+  const m = new Map();
+  arr.forEach(r=>{
+    const v=r[key];
+    if(!v) return;
+    m.set(v, (m.get(v)||0)+1);
+  });
+  return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([name,count])=>({name,count}));
+}
+function renderQuickView(){
+  const box = document.getElementById("quickViewBox");
+  if(!box) return;
+  const topM = topCounts(bhavAll, "Mandi", 5);
+  const topF = topCounts(bhavAll, "Fasal", 5);
+
+  box.innerHTML = `
+    <div class="quickBox fadeIn">
+      <div class="quickTitle">Top 5 Mandis</div>
+      ${topM.map(x=>`
+        <div class="listItem">
+          <div style="font-weight:900;">${escapeHtml(x.name)}</div>
+          <div class="badge">${x.count}</div>
+        </div>
+      `).join("") || `<div class="small">No data</div>`}
+    </div>
+
+    <div class="quickBox fadeIn">
+      <div class="quickTitle">Top 5 Fasals</div>
+      ${topF.map(x=>`
+        <div class="listItem">
+          <div style="font-weight:900;">${escapeHtml(x.name)}</div>
+          <div class="badge">${x.count}</div>
+        </div>
+      `).join("") || `<div class="small">No data</div>`}
+    </div>
+  `;
+}
+
+function renderMovers(){
+  const el = document.getElementById("moversBox");
+  if(!el) return;
+  const dates = unique(bhavAll.map(r=>r.DateISO).filter(Boolean)).sort();
+  if(dates.length<2){
+    el.textContent = "Movers के लिए data कम है.";
+    return;
   }
+  const latest = dates[dates.length-1];
+  const prev = dates[dates.length-2];
+
+  const prevMap = new Map();
+  bhavAll.filter(r=>r.DateISO===prev).forEach(r=>{
+    prevMap.set((r.Mandi||"")+"||"+(r.Fasal||""), toNum(r.Modal));
+  });
+
+  const deltas = [];
+  bhavAll.filter(r=>r.DateISO===latest).forEach(r=>{
+    const k=(r.Mandi||"")+"||"+(r.Fasal||"");
+    const p = prevMap.get(k);
+    if(p==null) return;
+    const c = toNum(r.Modal);
+    const diff = c - p;
+    deltas.push({row:r, diff});
+  });
+
+  deltas.sort((a,b)=> Math.abs(b.diff) - Math.abs(a.diff));
+  const top = deltas.slice(0,5);
+
+  if(!top.length){
+    el.textContent = "Movers नहीं मिले.";
+    return;
+  }
+  el.innerHTML = top.map(x=>{
+    const d=x.diff;
+    const sign = d>=0?"+":"";
+    const color = d>=0?"var(--green)":"var(--red)";
+    return `
+      <div class="listItem" style="cursor:pointer;" onclick="openInsightFromMover('${escapeHtml(x.row.Mandi||"")}','${escapeHtml(x.row.Fasal||"")}','${escapeHtml(x.row.Date||"")}')">
+        <div style="font-weight:900;">
+          ${escapeHtml(x.row.Mandi||"")} • ${escapeHtml(x.row.Fasal||"")}
+          <div class="small">${escapeHtml(x.row.Date||"")}</div>
+        </div>
+        <div class="badge" style="color:${color};border-color:${color};">${sign}${Math.round(d)}</div>
+      </div>
+    `;
+  }).join("");
+}
+function openInsightFromMover(mandi, fasal, date){
+  const row = bhavAll.find(r=>r.Mandi===mandi && r.Fasal===fasal && r.Date===date) || bhavAll.find(r=>r.Mandi===mandi && r.Fasal===fasal);
+  if(row) openInsight(row);
+}
+
+/* Daily digest + watchlist updates */
+let cachedNewsRows = [];
+let cachedTickerItems = [];
+
+function renderDigest(){
+  const el = document.getElementById("digestBox");
+  if(!el) return;
+
+  const items = (cachedTickerItems && cachedTickerItems.length ? cachedTickerItems.slice(0,3) : [])
+    .concat((cachedNewsRows||[]).slice(0,3).map(x=>getField(x,["Title","title"])).filter(Boolean))
+    .slice(0,3);
+
+  if(!items.length){
+    el.innerHTML = `<div class="emptyBox fadeIn">आज के अपडेट लोड नहीं हुए.</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="font-weight:900;margin-bottom:8px;">आज के 3 बड़े अपडेट</div>
+    ${items.map(t=>`<div class="listItem"><div style="font-weight:900;">• ${escapeHtml(t)}</div><div class="badge">New</div></div>`).join("")}
+  `;
+}
+function renderWatchlistUpdates(){
+  const el = document.getElementById("watchlistBox");
+  if(!el) return;
+  const favs = getFavs();
+  if(!favs.length){
+    el.textContent="Favorites add करोगे तो updates दिखेंगे.";
+    return;
+  }
+
+  const dates = unique(bhavAll.map(r=>r.DateISO).filter(Boolean)).sort();
+  const latest = dates.length ? dates[dates.length-1] : "";
+  const list = favs.map(f=>{
+    if(f.type==="mandi"){
+      const rows = bhavAll.filter(r=>r.Mandi===f.value && (!latest || r.DateISO===latest)).slice(0,2);
+      const line = rows.map(r=>`${r.Fasal||""}: ${r.Modal||""}`).filter(Boolean).join(" | ");
+      return `📍 ${f.value} — ${line || "No latest rows"}`;
+    }else{
+      const row = bhavAll.find(r=>r.Fasal===f.value && (!latest || r.DateISO===latest));
+      return `🌾 ${f.value} — ${row ? (`${row.Mandi||""}: ${row.Modal||""}`) : "No latest row"}`;
+    }
+  }).slice(0,6);
+
+  el.innerHTML = list.map(x=>`<div class="listItem"><div style="font-weight:900;">${escapeHtml(x)}</div><div class="badge">Live</div></div>`).join("");
+}
+
+/* Skeleton initial render */
+function renderBhavSkeleton(){
+  bhav.innerHTML = `
+    <div class="section">
+      <div class="sectionHead gradA">🌾 Bhav</div>
+      <div class="sectionBody">
+        <div class="skel" style="padding:10px;">
+          <div class="skelLine big"></div>
+          <div class="skelLine"></div>
+          <div class="skelLine"></div>
+          <div class="skelLine"></div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 /* BHAV UI */
@@ -793,7 +1175,6 @@ function bhavUI(tickerBlock){
       <div class="sectionHead gradA">🌾 Bhav</div>
       <div class="sectionBody">
 
-        <!-- ✅ Favorites -->
         <div class="card" style="margin:0 0 10px 0;">
           <div style="font-weight:900;">⭐ Favorites</div>
           <div id="favWrap" style="margin-top:6px;"></div>
@@ -824,7 +1205,6 @@ function bhavUI(tickerBlock){
           <div><b id="rowsCount">0</b></div>
         </div>
 
-        <!-- ✅ Full-width table -->
         <div id="bhavTableWrap" style="margin-top:10px;margin-left:-12px;margin-right:-12px;"></div>
       </div>
     </div>
@@ -851,6 +1231,49 @@ function bhavUI(tickerBlock){
         </div>
       </div>
     </div>
+
+    <div class="section">
+      <div class="sectionHead gradB">✨ Daily Digest</div>
+      <div class="sectionBody">
+        <div id="digestBox" class="card">
+          <div class="skel" style="padding:10px;">
+            <div class="skelLine big"></div>
+            <div class="skelLine"></div>
+            <div class="skelLine"></div>
+            <div class="skelLine"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:10px;">
+          <div style="font-weight:900;margin-bottom:6px;">👀 Watchlist Updates</div>
+          <div id="watchlistBox" class="small">Favorites add करोगे तो updates दिखेंगे.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sectionHead gradD">⚡ Quick View</div>
+      <div class="sectionBody">
+        <div id="quickViewBox" class="quickGrid">
+          <div class="quickBox">
+            <div class="quickTitle">Top 5 Mandis</div>
+            <div class="skel" style="padding:10px;">
+              <div class="skelLine"></div><div class="skelLine"></div><div class="skelLine"></div>
+            </div>
+          </div>
+          <div class="quickBox">
+            <div class="quickTitle">Top 5 Fasals</div>
+            <div class="skel" style="padding:10px;">
+              <div class="skelLine"></div><div class="skelLine"></div><div class="skelLine"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:10px;">
+          <div style="font-weight:900;margin-bottom:6px;">📌 Today’s Top Movers</div>
+          <div id="moversBox" class="small">Loading…</div>
+        </div>
+      </div>
+    </div>
   `;
 }
 
@@ -861,12 +1284,10 @@ function setBhavMode(m){
   document.getElementById("btnFW").classList.toggle("active", m==="fasalWise");
   document.getElementById("mwBox").style.display = (m==="mandiWise") ? "grid" : "none";
   document.getElementById("fwBox").style.display = (m==="fasalWise") ? "block" : "none";
-  document.getElementById("bhavTableWrap").innerHTML="";
+  document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
   document.getElementById("rowsBadge").style.display="none";
   setSelectionCard("");
 }
-
-/* selection card supports HTML */
 function setSelectionCard(html){
   const c = document.getElementById("selectionCard");
   if(!c) return;
@@ -879,17 +1300,22 @@ function setSelectionCard(html){
   }
 }
 
-/* ✅ Draw table implementations (with Load more) */
+/* Draw table */
 function drawMandiWise(rows){
   const wrap=document.getElementById("bhavTableWrap");
   const hasMore = currentRowsAll.length > rows.length;
 
+  if(!rows.length){
+    wrap.innerHTML = `<div class="emptyBox fadeIn">No data found</div>`;
+    return;
+  }
+
   wrap.innerHTML = `
-    <table><thead>
+    <table class="fadeIn"><thead>
       <tr><th>Date</th><th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
     </thead><tbody>
-      ${rows.map(r=>`
-        <tr>
+      ${rows.map((r,idx)=>`
+        <tr class="bhRow" data-idx="${idx}">
           <td>${escapeHtml(r.Date||"")}</td><td>${escapeHtml(r.Fasal||"")}</td>
           <td>${escapeHtml(r.Min||"")}</td><td>${escapeHtml(r.Max||"")}</td><td>${escapeHtml(r.Modal||"")}</td>
           <td><span class="trendLink" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}">${formatTrend(r.Trend||"")}</span></td>
@@ -898,8 +1324,16 @@ function drawMandiWise(rows){
     </tbody></table>
     ${hasMore ? `<div style="padding:12px;"><button class="miniBtn primary" type="button" onclick="loadMore()">Load more</button></div>` : ``}
   `;
+
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
-    c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
+    c.onclick=(e)=>{ e.stopPropagation(); openTrend(c.dataset.mandi, c.dataset.fasal); };
+  });
+
+  document.querySelectorAll("#bhavTableWrap .bhRow").forEach((tr,i)=>{
+    tr.onclick=()=>{
+      const r = rows[i];
+      openInsight(r);
+    };
   });
 }
 
@@ -907,12 +1341,17 @@ function drawFasalWise(rows){
   const wrap=document.getElementById("bhavTableWrap");
   const hasMore = currentRowsAll.length > rows.length;
 
+  if(!rows.length){
+    wrap.innerHTML = `<div class="emptyBox fadeIn">No data found</div>`;
+    return;
+  }
+
   wrap.innerHTML = `
-    <table><thead>
+    <table class="fadeIn"><thead>
       <tr><th>Date</th><th>Mandi</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
     </thead><tbody>
-      ${rows.map(r=>`
-        <tr>
+      ${rows.map((r,idx)=>`
+        <tr class="bhRow" data-idx="${idx}">
           <td>${escapeHtml(r.Date||"")}</td><td>${escapeHtml(r.Mandi||"")}</td>
           <td>${escapeHtml(r.Min||"")}</td><td>${escapeHtml(r.Max||"")}</td><td>${escapeHtml(r.Modal||"")}</td>
           <td><span class="trendLink" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}">${formatTrend(r.Trend||"")}</span></td>
@@ -921,13 +1360,23 @@ function drawFasalWise(rows){
     </tbody></table>
     ${hasMore ? `<div style="padding:12px;"><button class="miniBtn primary" type="button" onclick="loadMore()">Load more</button></div>` : ``}
   `;
+
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
-    c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
+    c.onclick=(e)=>{ e.stopPropagation(); openTrend(c.dataset.mandi, c.dataset.fasal); };
+  });
+
+  document.querySelectorAll("#bhavTableWrap .bhRow").forEach((tr,i)=>{
+    tr.onclick=()=>{
+      const r = rows[i];
+      openInsight(r);
+    };
   });
 }
 
 /* INIT */
 async function init(){
+  renderBhavSkeleton();
+
   // ticker
   let tickerBlock = "";
   try{
@@ -936,6 +1385,7 @@ async function init(){
       .map(r=>getField(r,["Text","text","News","news","Title","title"]))
       .filter(Boolean)
       .slice(0,5);
+    cachedTickerItems = items;
     tickerBlock = tickerHTML(items);
   }catch(e){ tickerBlock=""; }
 
@@ -963,8 +1413,11 @@ async function init(){
     Trend: getField(r,["Trend","trend"])
   })).filter(x=>x.Date || x.Mandi || x.Fasal);
 
-  // favorites render
   renderFavs();
+  renderQuickView();
+  renderMovers();
+  renderDigest();
+  renderWatchlistUpdates();
 
   // stats
   const states = unique(bhavAll.map(r=>r.State));
@@ -983,7 +1436,7 @@ async function init(){
     const s=mwState.value;
     unique(bhavAll.filter(r=>!s || r.State===s).map(r=>r.Mandi))
       .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${escapeHtml(m)}</option>`));
-    document.getElementById("bhavTableWrap").innerHTML="";
+    document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
     document.getElementById("rowsBadge").style.display="none";
     setSelectionCard("");
   };
@@ -991,7 +1444,7 @@ async function init(){
   mwMandi.onchange=()=>{
     const s=mwState.value, m=mwMandi.value;
     if(!m){
-      document.getElementById("bhavTableWrap").innerHTML="";
+      document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
       document.getElementById("rowsBadge").style.display="none";
       setSelectionCard("");
       return;
@@ -1002,73 +1455,89 @@ async function init(){
        <button class="miniBtn" style="float:right;margin-left:8px;" onclick="addFav('mandi','${(m||"").replace(/'/g,"\\'")}')">⭐ Save</button>`
     );
 
-    const rows = bhavAll
+    let rows = bhavAll
       .filter(r=>(!s || r.State===s) && r.Mandi===m)
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
-
     resetPagination(rows, "mandiWise");
   };
 
   fwFasal.onchange=()=>{
     const f=fwFasal.value;
     if(!f){
-      document.getElementById("bhavTableWrap").innerHTML="";
+      document.getElementById("bhavTableWrap").innerHTML = ""; /* ✅ removed empty bar */
       document.getElementById("rowsBadge").style.display="none";
       setSelectionCard("");
       return;
     }
 
-    setSelectionCard(`🌾 Fasal: ${escapeHtml(f)} <button class="miniBtn" style="float:right" onclick="addFav('fasal','${(f||"").replace(/'/g,"\\'")}')">⭐ Save</button>`);
+    setSelectionCard(
+      `🌾 Fasal: ${escapeHtml(f)}
+       <button class="miniBtn" style="float:right;margin-left:8px;" onclick="addFav('fasal','${(f||"").replace(/'/g,"\\'")}')">⭐ Save</button>`
+    );
 
-    const rows = bhavAll
+    let rows = bhavAll
       .filter(r=>r.Fasal===f)
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
-
     resetPagination(rows, "fasalWise");
   };
 
   setBhavMode("mandiWise");
-
-  // ✅ Onboarding (1-time)
   maybeShowOnboarding();
 
   // Other tabs
   const n=(await load("News")).reverse();
+  cachedNewsRows = n || [];
+  renderDigest();
+
   news.innerHTML = `<div class="section"><div class="sectionHead gradB">📰 News</div><div class="sectionBody">${
-    (n||[]).map((x,i)=>`
-      <div class="card">
-        <div class="row" onclick="openExclusive('newsDetail','n${i}')">
-          <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
-          <div class="text">${escapeHtml(getField(x,["Title","title"])||"")}</div>
+    (n||[]).map((x,i)=>{
+      const title = getField(x,["Title","title"])||"";
+      const detail = getField(x,["Detail","detail","Full","full"])||"";
+      const img = getField(x,["ImageURL","imageurl","Image","img"])||"";
+      return `
+        <div class="card fadeIn">
+          <div class="row" onclick="openExclusive('newsDetail','n${i}')">
+            <img src="${img}" onerror="this.style.display='none'">
+            <div class="text">${escapeHtml(title)}</div>
+          </div>
+          <div id="n${i}" class="detail newsDetail">${escapeHtml(detail)}</div>
         </div>
-        <div id="n${i}" class="detail newsDetail">${escapeHtml(getField(x,["Detail","detail","Full","full"])||"")}</div>
-      </div>
-    `).join("")
+      `;
+    }).join("")
   }</div></div>`;
 
   const tr=(await load("Trend")).reverse();
   trend.innerHTML = `<div class="section"><div class="sectionHead gradE">📈 Teji/Mandi</div><div class="sectionBody">${
-    (tr||[]).map((x,i)=>`
-      <div class="card">
-        <div class="row" onclick="openExclusive('trendDetail','t${i}')">
-          <img src="${getField(x,["ImageURL","imageurl","Image","img"])||""}" onerror="this.style.display='none'">
-          <div class="text">${escapeHtml(getField(x,["Title","title"])||"")}</div>
+    (tr||[]).map((x,i)=>{
+      const title = getField(x,["Title","title"])||"";
+      const detail = getField(x,["Detail","detail","Full","full"])||"";
+      const img = getField(x,["ImageURL","imageurl","Image","img"])||"";
+      return `
+        <div class="card fadeIn">
+          <div class="row" onclick="openExclusive('trendDetail','t${i}')">
+            <img src="${img}" onerror="this.style.display='none'">
+            <div class="text">${escapeHtml(title)}</div>
+          </div>
+          <div id="t${i}" class="detail trendDetail">${escapeHtml(detail)}</div>
         </div>
-        <div id="t${i}" class="detail trendDetail">${escapeHtml(getField(x,["Detail","detail","Full","full"])||"")}</div>
-      </div>
-    `).join("")
+      `;
+    }).join("")
   }</div></div>`;
 
   const w=(await load("Weather")).reverse();
   weather.innerHTML = `<div class="section"><div class="sectionHead gradD">🌦️ Mausam</div><div class="sectionBody">${
-    (w||[]).map((x,i)=>`
-      <div class="card">
-        <div class="row" onclick="openExclusive('weatherDetail','w${i}')">
-          <div class="text">${escapeHtml(getField(x,["Title","title"])||"")}</div>
+    (w||[]).map((x,i)=>{
+      const title = getField(x,["Title","title"])||"";
+      const detail = getField(x,["Detail","detail","Full","full"])||"";
+      return `
+        <div class="card fadeIn">
+          <div class="row" onclick="openExclusive('weatherDetail','w${i}')">
+            <div class="text">${escapeHtml(title)}</div>
+          </div>
+          <div id="w${i}" class="detail weatherDetail">${escapeHtml(detail)}</div>
         </div>
-        <div id="w${i}" class="detail weatherDetail">${escapeHtml(getField(x,["Detail","detail","Full","full"])||"")}</div>
-      </div>
-    `).join("")
+      `;
+    }).join("")
   }</div></div>`;
 
   const v=(await load("Video")).reverse();
@@ -1082,7 +1551,7 @@ async function init(){
         const id = ytId(link);
         if(!id) return `<div class="card"><b>${escapeHtml(title||"Video")}</b><div class="small">Invalid link</div></div>`;
         return `
-          <div class="card">
+          <div class="card fadeIn">
             <div class="row" onclick="openVideo('${id}','${(title||"").replace(/'/g,"\\'")}')">
               <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" onerror="this.style.display='none'">
               <div class="text">${escapeHtml(title||"")}</div>
@@ -1107,7 +1576,6 @@ async function pollBhav(){
       }
       if(sig && !oldSig) localStorage.setItem("mg_last_bhav_sig", sig);
 
-      // keep bhavAll refreshed for compare charts
       bhavAll = (b||[]).map(r=>({
         Date: getField(r,["Date","date"]),
         DateISO: toISO(getField(r,["Date","date"])),
@@ -1119,6 +1587,11 @@ async function pollBhav(){
         Modal: getField(r,["Modal","modal"]),
         Trend: getField(r,["Trend","trend"])
       })).filter(x=>x.Date || x.Mandi || x.Fasal);
+
+      renderQuickView();
+      renderMovers();
+      renderWatchlistUpdates();
+      setNetChip();
 
     }catch(e){}
   }, 300000);
