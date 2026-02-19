@@ -3,137 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <title>Mandi GOLD</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root {
-  --bg:#000;
-  --card:#111;
-  --text:#fff;
-}
-.light {
-  --bg:#f2f2f2;
-  --card:#fff;
-  --text:#000;
-}
-body { margin:0; font-family:Arial; background:var(--bg); color:var(--text); }
-
-#splash {
-  position:fixed; inset:0; background:#000; color:#FFD700;
-  display:flex; align-items:center; justify-content:center;
-  font-size:32px; z-index:9999;
-}
-
-.tab { display:none; padding:10px; }
-.tab.active { display:block; }
-
-.bottom-nav {
-  position:fixed; bottom:0; width:100%; display:flex;
-  background:#111; border-top:1px solid #333;
-}
-.bottom-nav button {
-  flex:1; padding:8px; background:none; color:white; border:none;
-}
-.bottom-nav img { width:28px; }
-
-.card {
-  display:flex; gap:10px; margin:10px 0;
-  background:var(--card); padding:10px; border-radius:10px;
-}
-.card img { width:30%; border-radius:8px; }
-.card h4 { width:70%; margin:0; }
-
-iframe { width:100%; height:200px; border-radius:10px; }
-select,input{ padding:6px; margin:4px; width:48%; }
-
-.toggle {
-  position:fixed; top:10px; right:10px;
-}
+:root{--bg:#000;--card:#111;--txt:#fff}
+.light{--bg:#f4f4f4;--card:#fff;--txt:#000}
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--txt)}
+#splash{position:fixed;inset:0;background:#000;color:#FFD700;
+display:flex;align-items:center;justify-content:center;
+font-size:32px;z-index:999}
+.tab{display:none;padding:12px;padding-bottom:80px}
+.tab.active{display:block}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#111}
+.bottom-nav button{flex:1;border:0;background:none;color:#fff;padding:8px}
+.bottom-nav img{width:26px;height:26px}
+.card{display:flex;gap:10px;background:var(--card);padding:10px;border-radius:10px;margin-bottom:10px}
+.card img{width:30%;border-radius:8px;object-fit:cover}
+.card h4{margin:0;width:70%}
+iframe{width:100%;height:200px;border-radius:10px;border:0}
+select,input{width:48%;padding:6px;margin:4px 1%}
+.toggle{position:fixed;top:10px;right:10px;z-index:10}
 </style>
 </head>
-
 <body>
 
 <div id="splash">🌾 Mandi GOLD</div>
+<button class="toggle" onclick="toggleTheme()">🌓</button>
 
-<div class="toggle">
-<button onclick="toggleTheme()">🌓</button>
-</div>
-
-<div id="bhav" class="tab active"></div>
+<div id="bhav" class="tab"></div>
 <div id="news" class="tab"></div>
 <div id="trend" class="tab"></div>
 <div id="mausam" class="tab"></div>
 <div id="video" class="tab"></div>
 
 <div class="bottom-nav">
-  <button onclick="showTab('bhav')"><img src="bhav.png"><br>Bhav</button>
-  <button onclick="showTab('news')"><img src="news.png"><br>News</button>
-  <button onclick="showTab('trend')"><img src="trend.png"><br>Teji/Mandi</button>
-  <button onclick="showTab('mausam')"><img src="mausam.png"><br>Mausam</button>
-  <button onclick="showTab('video')"><img src="video.png"><br>Video</button>
+<button onclick="showTab('bhav')">Bhav</button>
+<button onclick="showTab('news')">News</button>
+<button onclick="showTab('trend')">Teji/Mandi</button>
+<button onclick="showTab('mausam')">Mausam</button>
+<button onclick="showTab('video')">Video</button>
 </div>
 
 <script>
-const SHEET_ID = "1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
+const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
+const TABS=["bhav","news","trend","mausam","video"];
+let active=localStorage.getItem("tab")||"bhav";
 
-const TABS = ["bhav","news","trend","mausam","video"];
-let currentTab = localStorage.getItem("tab") || "bhav";
+function showTab(t){
+ TABS.forEach(x=>document.getElementById(x).classList.remove("active"));
+ document.getElementById(t).classList.add("active");
+ localStorage.setItem("tab",t);
+}
+showTab(active);
+setTimeout(()=>splash.style.display="none",2000);
+function toggleTheme(){document.body.classList.toggle("light")}
 
-function showTab(tab){
-  TABS.forEach(t=>document.getElementById(t).classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-  localStorage.setItem("tab",tab);
+async function load(sheet){
+ const r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
+ return r.json();
 }
 
-showTab(currentTab);
-
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
-
-setTimeout(()=>document.getElementById("splash").style.display="none",2000);
-
-// Fetch Functions
-function loadSheet(name, cb){
- fetch(`https://opensheet.elk.sh/${SHEET_ID}/${name}`)
- .then(r=>r.json()).then(cb);
-}
-
-loadSheet("News", data=>{
- document.getElementById("news").innerHTML = data.reverse().map(n=>`
- <div class="card" onclick="alert('${n.FullNews}')">
+/* ---------- NEWS ---------- */
+load("News").then(d=>{
+ news.innerHTML=d.reverse().map(n=>`
+ <div class="card" onclick="alert(n.Full)">
   <img src="${n.ImageURL}">
   <h4>${n.Title}</h4>
  </div>`).join("");
 });
 
-loadSheet("TejiMandi", data=>{
- document.getElementById("trend").innerHTML = data.reverse().map(n=>`
- <div class="card" onclick="alert('${n.FullReport}')">
+/* ---------- TEJI MANDI ---------- */
+load("TejiMandi").then(d=>{
+ trend.innerHTML=d.reverse().map(n=>`
+ <div class="card" onclick="alert(n.Full)">
   <img src="${n.ImageURL}">
   <h4>${n.Title}</h4>
  </div>`).join("");
 });
 
-loadSheet("Mausam", data=>{
- document.getElementById("mausam").innerHTML = data.reverse().map(n=>`
- <div class="card"><h4>${n.Title}</h4><p>${n.FullUpdate}</p></div>
- `).join("");
+/* ---------- MAUSAM ---------- */
+load("Mausam").then(d=>{
+ mausam.innerHTML=d.reverse().map(n=>`
+ <div class="card"><h4>${n.Title}</h4><p>${n.Full}</p></div>`).join("");
 });
 
-loadSheet("Video", data=>{
- document.getElementById("video").innerHTML = data.reverse().map(v=>{
-   let id = v.YouTubeLink.split("v=")[1];
-   return `<div class="card">
-     <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
-     <h4 onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
-       ${v.Title}
-     </h4>
-   </div>`;
+/* ---------- VIDEO ---------- */
+load("Video").then(d=>{
+ video.innerHTML=d.reverse().map(v=>{
+  let id=v.YouTubeLink.split("v=")[1]?.split("&")[0];
+  return `<div class="card">
+   <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg"
+    onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
+   <h4>${v.Title}</h4>
+  </div>`;
  }).join("");
 });
-</script>
 
+/* ---------- BHAV + FILTER + CHART + NOTIFICATION ---------- */
+let lastDate=localStorage.getItem("lastBhavDate")||"";
+load("Bhav").then(d=>{
+ const latest=d[d.length-1]?.Date;
+ if(latest && latest!==lastDate){
+   alert("🔔 New Bhav Update Aaya Hai!");
+   localStorage.setItem("lastBhavDate",latest);
+ }
+
+ bhav.innerHTML=`
+ <select id="state"></select>
+ <select id="district"></select>
+ <select id="mandi"></select>
+ <select id="fasal"></select>
+ <canvas id="chart"></canvas>
+ <div id="bhavList"></div>`;
+
+ let states=[...new Set(d.map(x=>x.State))];
+ state.innerHTML=`<option>State</option>`+states.map(s=>`<option>${s}</option>`).join("");
+
+ state.onchange=()=>{
+  let ds=[...new Set(d.filter(x=>x.State==state.value).map(x=>x.District))];
+  district.innerHTML=`<option>District</option>`+ds.map(x=>`<option>${x}</option>`).join("");
+ }
+
+ district.onchange=()=>{
+  let ms=[...new Set(d.filter(x=>x.District==district.value).map(x=>x.Mandi))];
+  mandi.innerHTML=`<option>Mandi</option>`+ms.map(x=>`<option>${x}</option>`).join("");
+ }
+
+ mandi.onchange=()=>{
+  let fs=[...new Set(d.filter(x=>x.Mandi==mandi.value).map(x=>x.Fasal))];
+  fasal.innerHTML=`<option>Fasal</option>`+fs.map(x=>`<option>${x}</option>`).join("");
+ }
+
+ fasal.onchange=()=>{
+  let rows=d.filter(x=>x.Mandi==mandi.value && x.Fasal==fasal.value);
+  bhavList.innerHTML=rows.map(r=>`
+   <div class="card">
+    <h4>${r.Date} | ${r.Fasal}</h4>
+    <p>Min:${r.Min} Max:${r.Max} Modal:${r.Modal} (${r.Trend})</p>
+   </div>`).join("");
+
+  new Chart(chart.getContext("2d"),{
+    type:"line",
+    data:{
+      labels:rows.map(r=>r.Date),
+      datasets:[{label:"Modal Bhav",data:rows.map(r=>+r.Modal),borderColor:"gold"}]
+    }
+  });
+ }
+});
+</script>
 </body>
 </html>
