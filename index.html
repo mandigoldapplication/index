@@ -3,47 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mandi GOLD</title>
+<title>मंडी GOLD</title>
 
 <style>
-:root{--bg:#0d0f12;--card:#111;--text:#fff;--green:#0f9d58}
-.light{--bg:#f4f4f4;--card:#fff;--text:#000}
-body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
+:root{
+  --bg:#f4f4f4; --card:#ffffff; --text:#111; --muted:#444;
+  --green:#0f9d58; --border:#ddd;
+}
+body.dark{
+  --bg:#0d0f12; --card:#111; --text:#fff; --muted:#bfc6cc;
+  --green:#0f9d58; --border:#2a2f36;
+}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);}
 
 #splash{
-position:fixed;inset:0;background:var(--green);
-display:flex;align-items:center;justify-content:center;
-font-size:28px;color:#fff;z-index:9999;
+  position:fixed; inset:0; background:var(--green); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; font-weight:900; z-index:9999;
 }
 
-header{background:var(--green);padding:12px;text-align:center;color:#fff;font-weight:bold}
+header{
+  background:var(--green); padding:12px 12px;
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.brand{
+  font-weight:900; letter-spacing:.5px;
+  font-size:22px; line-height:1;
+}
+.brand .mandi{color:#fff;}
+.brand .gold{color:#FFD54A; text-shadow:0 1px 0 rgba(0,0,0,.3);}
+.themeBtn{
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff; padding:6px 10px; border-radius:999px;
+  cursor:pointer; font-size:12px; font-weight:700;
+}
 
-.tab{display:none;padding:12px;padding-bottom:90px}
-.tab.active{display:block}
+.tab{display:none;padding:12px;padding-bottom:96px;}
+.tab.active{display:block;}
 
-table{width:100%;border-collapse:collapse;background:var(--card)}
-th,td{border:1px solid #333;padding:6px;font-size:12px;text-align:center}
-th{background:var(--green);color:#fff}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;}
+th,td{border:1px solid var(--border);padding:6px;font-size:12px;text-align:center;}
+th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);}
 
-.card{background:var(--card);padding:10px;border-radius:10px;margin:10px 0}
-.row{display:flex;gap:10px;align-items:center}
-.row img{width:30%;height:80px;object-fit:cover;border-radius:8px}
+.card{background:var(--card);padding:10px;border-radius:10px;margin:10px 0;border:1px solid var(--border);}
+.row{display:flex;gap:10px;align-items:center;cursor:pointer;}
+.row img{width:30%;height:80px;object-fit:cover;border-radius:8px;background:#ccc;}
 .row .text{width:70%;font-weight:bold}
+.detail{display:none;font-size:13px;margin-top:8px;color:var(--muted);white-space:pre-wrap;}
 
-.detail{display:none;font-size:13px;margin-top:8px}
+.filters{background:var(--card);border:1px solid var(--border);padding:10px;border-radius:10px;margin:10px 0;}
+.seg{display:flex;gap:8px;margin-bottom:10px;}
+.seg button{
+  flex:1; padding:8px; border-radius:10px; cursor:pointer;
+  border:1px solid var(--border); background:var(--bg); color:var(--text); font-weight:700;
+}
+.seg button.active{background:var(--green);color:#fff;border-color:var(--green);}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+select,input{
+  width:100%;padding:8px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);
+}
+.btn{
+  width:100%;padding:10px;border-radius:10px;border:none;background:var(--green);color:#fff;font-weight:900;cursor:pointer;
+}
+.btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
 
-iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px}
+iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px;}
 
-.bottom{position:fixed;bottom:0;width:100%;display:flex;background:#111}
-.bottom button{flex:1;border:0;background:none;color:#fff;padding:8px}
+.bottom{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;justify-content:space-around;
+  background:var(--green); padding:6px 0;
+}
+.bottom button{
+  flex:1;border:0;background:none;color:#fff;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  font-size:11px;cursor:pointer;opacity:.92;
+}
+.bottom .icon{font-size:22px;line-height:1;}
+.bottom button.active{opacity:1;color:#ffe082;font-weight:900;}
 </style>
 </head>
 
 <body>
 
-<div id="splash">🌾 Mandi GOLD</div>
+<div id="splash">🌾 मंडी GOLD</div>
 
-<header>🌾 Mandi GOLD</header>
+<header>
+  <div class="brand"><span class="mandi">मंडी</span> <span class="gold">GOLD</span></div>
+  <button class="themeBtn" onclick="toggleTheme()">🌗 Theme</button>
+</header>
 
 <div id="bhav" class="tab active"></div>
 <div id="news" class="tab"></div>
@@ -52,111 +103,287 @@ iframe{width:100%;height:200px;border-radius:10px;border:0;margin-top:8px}
 <div id="video" class="tab"></div>
 
 <div class="bottom">
-<button onclick="openTab('bhav')">🌾 Bhav</button>
-<button onclick="openTab('news')">📰 News</button>
-<button onclick="openTab('trend')">📈 Teji</button>
-<button onclick="openTab('weather')">🌦️ Mausam</button>
-<button onclick="openTab('video')">🎥 Video</button>
+  <button id="btn-bhav" onclick="openTab('bhav')"><div class="icon">🌾</div><div>Bhav</div></button>
+  <button id="btn-news" onclick="openTab('news')"><div class="icon">📰</div><div>News</div></button>
+  <button id="btn-trend" onclick="openTab('trend')"><div class="icon">📈</div><div>Teji/Mandi</div></button>
+  <button id="btn-weather" onclick="openTab('weather')"><div class="icon">🌦️</div><div>Mausam</div></button>
+  <button id="btn-video" onclick="openTab('video')"><div class="icon">🎥</div><div>Video</div></button>
 </div>
 
 <script>
-const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
+/* ✅ Default theme = LIGHT */
+document.body.classList.remove("dark");
+if(localStorage.theme === "dark") document.body.classList.add("dark");
 
-function openTab(t){
-document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-document.getElementById(t).classList.add('active');
-localStorage.tab=t;
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  localStorage.theme = document.body.classList.contains("dark") ? "dark" : "light";
 }
-if(localStorage.tab)openTab(localStorage.tab);
 
 setTimeout(()=>{document.getElementById("splash").style.display="none"},2000);
 
+const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
+
+function openTab(t){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById(t).classList.add('active');
+
+  document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+t).classList.add('active');
+
+  localStorage.tab=t;
+}
+if(localStorage.tab) openTab(localStorage.tab); else openTab("bhav");
+
 async function load(sheet){
-let r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
-return r.json();
+  let r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
+  return r.json();
 }
 
-/* -------- BHAV TABLE -------- */
-load("Bhav").then(data=>{
-let html=`
-<table>
-<tr>
-<th>Date</th><th>State</th><th>Mandi</th>
-<th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th>
-</tr>`;
-data.reverse().forEach(r=>{
-html+=`
-<tr>
-<td>${r.Date}</td>
-<td>${r.State}</td>
-<td>${r.Mandi}</td>
-<td>${r.Fasal}</td>
-<td>${r.Min}</td>
-<td>${r.Max}</td>
-<td>${r.Modal}</td>
-<td>${r.Trend}</td>
-</tr>`;
-});
-html+="</table>";
-bhav.innerHTML=html;
-});
+/* ✅ Trend formatting (teji 200 / mandi 200 / neutral) */
+function formatTrend(val){
+  const s=(val||"").toString().trim().toLowerCase();
+  if(!s) return "";
+  if(s.startsWith("teji")){
+    const n = (s.match(/\d+/)||[""])[0];
+    return `🟢▲ +${n || ""}`;
+  }
+  if(s.startsWith("mandi")){
+    const n = (s.match(/\d+/)||[""])[0];
+    return `🔴▼ -${n || ""}`;
+  }
+  if(s.startsWith("neutral")){
+    return `🟠 Neutral`;
+  }
+  return val;
+}
 
-/* -------- NEWS -------- */
-load("News").then(data=>{
-news.innerHTML=data.reverse().map((n,i)=>`
-<div class="card">
-<div class="row" onclick="toggle('n${i}')">
-<img src="${n.ImageURL}">
-<div class="text">${n.Title}</div>
-</div>
-<div id="n${i}" class="detail">${n.Detail}</div>
-</div>`).join("");
-});
+/* -------- BHAV (Only 2 filter modes) -------- */
+let bhavData=[];
 
-/* -------- TREND -------- */
-load("Trend").then(data=>{
-trend.innerHTML=data.reverse().map((n,i)=>`
-<div class="card">
-<div class="row" onclick="toggle('t${i}')">
-<img src="${n.ImageURL}">
-<div class="text">${n.Title}</div>
-</div>
-<div id="t${i}" class="detail">${n.Detail}</div>
-</div>`).join("");
-});
+function bhavUI(){
+  return `
+  <div class="filters">
+    <div class="seg">
+      <button id="modeM" class="active" type="button" onclick="setMode('mandi')">🏬 Mandi wise</button>
+      <button id="modeF" type="button" onclick="setMode('fasal')">🌾 Fasal wise</button>
+    </div>
 
-/* -------- MAUSAM -------- */
-load("Weather").then(data=>{
-weather.innerHTML=data.reverse().map((n,i)=>`
-<div class="card" onclick="toggle('w${i}')">
-<b>${n.Title}</b>
-<div id="w${i}" class="detail">${n.Detail}</div>
-</div>`).join("");
-});
+    <div id="boxM" class="grid">
+      <select id="stateSel"><option value="">State (All)</option></select>
+      <select id="distSel"><option value="">District (All)</option></select>
+      <select id="mandiSel"><option value="">Mandi (All)</option></select>
+      <select id="fasalSelM"><option value="">Fasal (All)</option></select>
+      <input id="fromM" type="date">
+      <input id="toM" type="date">
+    </div>
+
+    <div id="boxF" class="grid" style="display:none;">
+      <select id="fasalSelF"><option value="">Fasal (All)</option></select>
+      <input id="fromF" type="date">
+      <input id="toF" type="date">
+    </div>
+
+    <div class="grid">
+      <button class="btn" onclick="applyBhavFilter()">Apply</button>
+      <button class="btn secondary" onclick="resetBhav()">Reset</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th><th>State</th><th>District</th><th>Mandi</th><th>Fasal</th>
+        <th>Min</th><th>Max</th><th>Modal</th><th>Trend</th>
+      </tr>
+    </thead>
+    <tbody id="bhavTable"></tbody>
+  </table>`;
+}
+
+let mode="mandi";
+function setMode(m){
+  mode=m;
+  document.getElementById("modeM").classList.toggle("active", m==="mandi");
+  document.getElementById("modeF").classList.toggle("active", m==="fasal");
+  document.getElementById("boxM").style.display = (m==="mandi") ? "grid" : "none";
+  document.getElementById("boxF").style.display = (m==="fasal") ? "grid" : "none";
+}
+
+function unique(arr){ return [...new Set(arr.filter(x=>x!==undefined && x!==null && x!==""))]; }
+
+function fillBhavDropdowns(){
+  const stateSel=document.getElementById("stateSel");
+  const distSel=document.getElementById("distSel");
+  const mandiSel=document.getElementById("mandiSel");
+  const fasalSelM=document.getElementById("fasalSelM");
+  const fasalSelF=document.getElementById("fasalSelF");
+
+  // initial
+  unique(bhavData.map(r=>r.State)).forEach(s=> stateSel.insertAdjacentHTML("beforeend", `<option>${s}</option>`));
+  unique(bhavData.map(r=>r.Fasal)).forEach(f=>{
+    fasalSelM.insertAdjacentHTML("beforeend", `<option>${f}</option>`);
+    fasalSelF.insertAdjacentHTML("beforeend", `<option>${f}</option>`);
+  });
+
+  stateSel.onchange=()=>{
+    distSel.innerHTML='<option value="">District (All)</option>';
+    mandiSel.innerHTML='<option value="">Mandi (All)</option>';
+    const s=stateSel.value;
+    unique(bhavData.filter(r=>!s || r.State===s).map(r=>r.District))
+      .forEach(d=> distSel.insertAdjacentHTML("beforeend", `<option>${d}</option>`));
+  };
+
+  distSel.onchange=()=>{
+    mandiSel.innerHTML='<option value="">Mandi (All)</option>';
+    const s=stateSel.value, d=distSel.value;
+    unique(bhavData.filter(r=>(!s||r.State===s) && (!d||r.District===d)).map(r=>r.Mandi))
+      .forEach(m=> mandiSel.insertAdjacentHTML("beforeend", `<option>${m}</option>`));
+  };
+}
+
+function renderBhavTable(rows){
+  const tbody=document.getElementById("bhavTable");
+  tbody.innerHTML = rows.map(r=>`
+    <tr>
+      <td>${r.Date||""}</td>
+      <td>${r.State||""}</td>
+      <td>${r.District||""}</td>
+      <td>${r.Mandi||""}</td>
+      <td>${r.Fasal||""}</td>
+      <td>${r.Min||""}</td>
+      <td>${r.Max||""}</td>
+      <td>${r.Modal||""}</td>
+      <td>${formatTrend(r.Trend)}</td>
+    </tr>
+  `).join("");
+}
+
+function applyBhavFilter(){
+  let rows=[...bhavData];
+
+  if(mode==="mandi"){
+    const state=stateSel.value, dist=distSel.value, mandi=mandiSel.value, fasal=fasalSelM.value;
+    const from=fromM.value, to=toM.value;
+    rows = rows.filter(r=>
+      (!state || r.State===state) &&
+      (!dist || r.District===dist) &&
+      (!mandi || r.Mandi===mandi) &&
+      (!fasal || r.Fasal===fasal) &&
+      (!from || (r.DateISO && r.DateISO >= from)) &&
+      (!to || (r.DateISO && r.DateISO <= to))
+    );
+  }else{
+    const fasal=fasalSelF.value;
+    const from=fromF.value, to=toF.value;
+    rows = rows.filter(r=>
+      (!fasal || r.Fasal===fasal) &&
+      (!from || (r.DateISO && r.DateISO >= from)) &&
+      (!to || (r.DateISO && r.DateISO <= to))
+    );
+  }
+
+  renderBhavTable(rows);
+}
+
+function resetBhav(){
+  // reset fields
+  stateSel.value=""; distSel.value=""; mandiSel.value=""; fasalSelM.value="";
+  fasalSelF.value="";
+  fromM.value=""; toM.value=""; fromF.value=""; toF.value="";
+  renderBhavTable(bhavData);
+}
+
+/* -------- NEWS / TREND / WEATHER -------- */
+function toggle(id){
+  const e=document.getElementById(id);
+  e.style.display = (e.style.display==="block") ? "none" : "block";
+}
 
 /* -------- VIDEO -------- */
-load("Video").then(data=>{
-video.innerHTML=data.reverse().map(v=>{
-let id=v.VideoURL.split("v=")[1]?.split("&")[0];
-return `
-<div class="card">
-<div class="row" onclick="playVideo(this,'${id}')">
-<img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
-<div class="text">${v.Title}</div>
-</div>
-</div>`;
-}).join("");
-});
-
-function toggle(id){
-let e=document.getElementById(id);
-e.style.display=e.style.display==="block"?"none":"block";
+function ytId(url){
+  if(!url) return "";
+  const u=url.toString().trim();
+  if(u.includes("youtu.be/")) return u.split("youtu.be/")[1].split("?")[0].split("&")[0];
+  if(u.includes("watch?v=")) return u.split("watch?v=")[1].split("&")[0];
+  if(u.includes("/shorts/")) return u.split("/shorts/")[1].split("?")[0].split("&")[0];
+  return "";
 }
-
 function playVideo(el,id){
-el.parentElement.innerHTML=
-`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
+  el.parentElement.innerHTML =
+    `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
 }
+
+/* ========== LOAD ALL ========== */
+async function init(){
+  // Bhav
+  bhav.innerHTML = `<h3>📊 Bhav</h3>` + bhavUI();
+  const b = await load("Bhav");
+  // normalize dates for filtering: convert "17 Feb 2026" to YYYY-MM-DD if possible
+  bhavData = b.map(r=>{
+    const dateStr = (r.Date||"").toString().trim();
+    // Try parse date like "17 Feb 2026"
+    let iso="";
+    const d = new Date(dateStr);
+    if(!isNaN(d.getTime())){
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      iso = `${d.getFullYear()}-${mm}-${dd}`;
+    }
+    return {...r, DateISO: iso || ""};
+  }).reverse(); // latest on top
+  fillBhavDropdowns();
+  renderBhavTable(bhavData);
+
+  // News
+  const n = (await load("News")).reverse();
+  news.innerHTML = `<h3>📰 News</h3>` + n.map((x,i)=>`
+    <div class="card">
+      <div class="row" onclick="toggle('n${i}')">
+        <img src="${x.ImageURL||""}" onerror="this.style.display='none'">
+        <div class="text">${x.Title||""}</div>
+      </div>
+      <div id="n${i}" class="detail">${x.Detail||""}</div>
+    </div>
+  `).join("");
+
+  // Trend
+  const t = (await load("Trend")).reverse();
+  trend.innerHTML = `<h3>📈 Teji/Mandi</h3>` + t.map((x,i)=>`
+    <div class="card">
+      <div class="row" onclick="toggle('t${i}')">
+        <img src="${x.ImageURL||""}" onerror="this.style.display='none'">
+        <div class="text">${x.Title||""}</div>
+      </div>
+      <div id="t${i}" class="detail">${x.Detail||""}</div>
+    </div>
+  `).join("");
+
+  // Weather
+  const w = (await load("Weather")).reverse();
+  weather.innerHTML = `<h3>🌦️ Mausam</h3>` + w.map((x,i)=>`
+    <div class="card" onclick="toggle('w${i}')">
+      <b>${x.Title||""}</b>
+      <div id="w${i}" class="detail">${x.Detail||""}</div>
+    </div>
+  `).join("");
+
+  // Video
+  const v = (await load("Video")).reverse();
+  video.innerHTML = `<h3>🎥 Video</h3>` + v.map((x,i)=>{
+    const id = ytId(x.VideoURL||x.VideoUrl||x.url||x.URL||"");
+    return `
+      <div class="card">
+        <div class="row" onclick="playVideo(this,'${id}')">
+          <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+          <div class="text">${x.Title||""}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+init();
 </script>
 
 </body>
