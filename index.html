@@ -79,8 +79,8 @@ select, input{
   box-sizing:border-box;
 }
 
-/* table */
-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;}
+/* table (✅ full-width look) */
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:0;overflow:visible;}
 th,td{border:1px solid var(--border);padding:9px;font-size:13.5px;text-align:center;}
 td{font-weight:600;}
 th{background:var(--green);color:#fff;border-color:rgba(255,255,255,.2);font-weight:800;}
@@ -188,7 +188,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 }
 .rowsBadge b{font-weight:900;}
 
-/* ✅ Added features styles (Favorites/Search/Alerts/Share/Compare) */
+/* ✅ Added features styles (Favorites/Search/Compare) */
 .pillRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -206,17 +206,6 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 }
 .miniBtn.primary{background:var(--green);border-color:var(--green);color:#fff;}
 .inlineRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.shareBtn{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:8px;
-  border:1px solid var(--border);
-  background:var(--bg);
-  cursor:pointer;
-  margin-left:6px;
-  font-weight:900;
-}
-.shareBtn:hover{border-color:var(--green);}
-.sep{height:1px;background:var(--border);margin:10px 0;}
 </style>
 </head>
 
@@ -251,8 +240,9 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
   <div class="box">
     <div class="modalTop">
       <div style="font-weight:900;font-size:16px;" id="trendTitle">📊 Trend</div>
+
       <div class="inlineRow" style="margin-left:auto;">
-        <!-- ✅ Compare Controls (feature add) -->
+        <!-- ✅ Compare Controls -->
         <label class="pill" style="cursor:default;">
           <input id="cmpEnable" type="checkbox" style="width:auto;margin:0 6px 0 0;"> Compare
         </label>
@@ -263,8 +253,10 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
           <option value="">Select Compare Fasal</option>
         </select>
       </div>
+
       <button class="closeBtn" onclick="closeTrend()">✖ Close</button>
     </div>
+
     <div class="card" style="margin:0 0 10px 0;">
       <div style="font-weight:900;margin-bottom:6px;">Last 7 Days (Modal)</div>
       <canvas id="chart7" height="120"></canvas>
@@ -347,7 +339,7 @@ function fireBhavUpdateAlert(){
   }
 }
 
-/* ✅ Better load + cache + error UI (feature add; minimal change via wrappers) */
+/* ✅ Better load + cache + error UI */
 async function loadRaw(sheet){
   const r = await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`, { cache:"no-store" });
   if(!r.ok) throw new Error("HTTP " + r.status);
@@ -357,7 +349,6 @@ async function loadCached(sheet){
   const key="mg_cache_"+sheet;
   const cached = localStorage.getItem(key);
   if(cached){
-    // background refresh
     loadRaw(sheet).then(d=>localStorage.setItem(key, JSON.stringify(d))).catch(()=>{});
     try{ return JSON.parse(cached); }catch(e){}
   }
@@ -375,7 +366,7 @@ async function load(sheet){
 }
 
 /* HELPERS */
-function unique(arr){return [...new Set(arr.filter(x=>x!==undefined && x!==null && x!=="" ))];}
+function unique(arr){return [...new Set(arr.filter(x=>x!==undefined && x!==null && x!==""))];}
 function toISO(dateStr){
   const d=new Date((dateStr||"").toString().trim());
   if(isNaN(d.getTime())) return "";
@@ -391,20 +382,25 @@ function getField(obj, names){
   }
   return "";
 }
+
+/* ✅ Trend format: Teji = green ▲ +200, Mandi = red ▼ -200 */
 function formatTrend(val){
-  const s=(val||"").toString().trim().toLowerCase();
+  const raw=(val||"").toString().trim();
+  const s=raw.toLowerCase();
   if(!s) return "";
+  const n = (s.match(/-?\d+/)||[""])[0]; // picks number if present
   if(s.startsWith("teji")){
-    const n = (s.match(/\d+/)||[""])[0];
-    return `🟢 +${n || ""}`;
+    const num = n || "";
+    return `<span style="color:#0f9d58;font-weight:900;">▲ +${num}</span>`;
   }
   if(s.startsWith("mandi")){
-    const n = (s.match(/\d+/)||[""])[0];
-    return `🔴-${n || ""}`;
+    const num = n || "";
+    return `<span style="color:#e53935;font-weight:900;">▼ -${num}</span>`;
   }
-  if(s.startsWith("neutral")) return `🟠 Neutral`;
-  return val;
+  if(s.startsWith("neutral")) return `<span style="color:#f59e0b;font-weight:900;">● Neutral</span>`;
+  return escapeHtml(raw);
 }
+
 function openExclusive(group, id){
   document.querySelectorAll(`.${group}`).forEach(el=>{
     if(el.id !== id) el.style.display="none";
@@ -418,10 +414,6 @@ function escapeHtml(str){
     .replaceAll("&","&amp;").replaceAll("<","&lt;")
     .replaceAll(">","&gt;").replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
-}
-function toNum(x){
-  const n = Number((x||"").toString().replace(/[^\d.]/g,""));
-  return isNaN(n) ? 0 : n;
 }
 
 /* TICKER */
@@ -456,33 +448,8 @@ function animateCount(el, target){
   }, Math.round(1000/fps));
 }
 
-/* ✅ Share text (WhatsApp / system share) */
-async function shareText(text){
-  try{
-    if(navigator.share){
-      await navigator.share({ text });
-    }else{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(text);
-        showToast("📋 Copied! WhatsApp pe paste karo");
-      }else{
-        showToast("❗ Share not supported");
-      }
-    }
-  }catch(e){}
-}
-function shareRow(r){
-  const text =
-`🌾 मंडी GOLD
-📅 ${r.Date||""}
-📍 ${r.Mandi||""}
-🌾 ${r.Fasal||""}
-Min: ${r.Min||""} | Max: ${r.Max||""} | Modal: ${r.Modal||""}
-Trend: ${r.Trend||""}`;
-  shareText(text);
-}
-
 /* ✅ Favorites (Mandi/Fasal) */
+let bhavAll=[];
 function favKey(){ return "mg_favs_v1"; }
 function getFavs(){ return JSON.parse(localStorage.getItem(favKey())||"[]"); }
 function setFavs(list){ localStorage.setItem(favKey(), JSON.stringify(list)); }
@@ -512,7 +479,7 @@ function renderFavs(){
   }
   wrap.innerHTML = `
     <div class="pillRow">
-      ${favs.map((f,i)=>`
+      ${favs.map(f=>`
         <div class="pill" data-type="${escapeHtml(f.type)}" data-val="${escapeHtml(f.value)}">
           ${f.type==="mandi" ? "📍" : "🌾"} ${escapeHtml(f.value)}
           <span class="x" data-x="1" title="Remove">✖</span>
@@ -523,24 +490,19 @@ function renderFavs(){
   wrap.querySelectorAll(".pill").forEach(p=>{
     p.onclick=(e)=>{
       const type=p.dataset.type, val=p.dataset.val;
-      // remove on x
       if(e.target && e.target.dataset && e.target.dataset.x==="1"){
         removeFav(type,val);
         return;
       }
-      // apply favorite
       if(type==="mandi"){
-        // set mode + select mandi if exists in current list
         setBhavMode("mandiWise");
         const mwState=document.getElementById("mwState");
         const mwMandi=document.getElementById("mwMandi");
-        // Find matching state for mandi (if possible)
         const row = bhavAll.find(r=>r.Mandi===val);
         if(row && row.State){
           mwState.value=row.State;
           mwState.onchange();
         }
-        // set mandi after options are filled
         setTimeout(()=>{
           mwMandi.value=val;
           mwMandi.onchange();
@@ -554,71 +516,6 @@ function renderFavs(){
       showToast("⭐ Favorite applied");
     };
   });
-}
-
-/* ✅ Custom Price Alerts (store locally; checked in poll) */
-function getPriceAlerts(){ return JSON.parse(localStorage.getItem("mg_price_alerts")||"[]"); }
-function setPriceAlerts(a){ localStorage.setItem("mg_price_alerts", JSON.stringify(a)); }
-function addPriceAlert(mandi, fasal, minModal){
-  const m=(mandi||"").trim(), f=(fasal||"").trim(), mm=toNum(minModal);
-  if(!m || !f || !mm) return showToast("⚠️ Mandi, Fasal, Modal fill karo");
-  const list=getPriceAlerts();
-  const id = `${m}__${f}__${mm}`;
-  if(list.some(x=>x.id===id)) return showToast("✅ Alert already added");
-  list.unshift({id, mandi:m, fasal:f, minModal:mm, lastHitISO:""});
-  setPriceAlerts(list.slice(0,20));
-  showToast("🔔 Price Alert Added");
-  renderAlerts();
-}
-function removePriceAlert(id){
-  const list=getPriceAlerts().filter(x=>x.id!==id);
-  setPriceAlerts(list);
-  renderAlerts();
-}
-function renderAlerts(){
-  const box=document.getElementById("alertsList");
-  if(!box) return;
-  const list=getPriceAlerts();
-  if(!list.length){
-    box.innerHTML = `<div class="small">No alerts yet.</div>`;
-    return;
-  }
-  box.innerHTML = `
-    ${list.map(a=>`
-      <div class="rowsBadge" style="margin-top:8px;">
-        <div style="text-align:left;">
-          <div style="font-weight:900;">🔔 ${escapeHtml(a.mandi)} | ${escapeHtml(a.fasal)}</div>
-          <div class="small">Trigger: Modal ≥ <b>${a.minModal}</b></div>
-        </div>
-        <button class="miniBtn" data-del="${escapeHtml(a.id)}">Remove</button>
-      </div>
-    `).join("")}
-  `;
-  box.querySelectorAll("button[data-del]").forEach(b=>{
-    b.onclick=()=>removePriceAlert(b.dataset.del);
-  });
-}
-function checkCustomAlerts(newRows){
-  const enabled = localStorage.getItem("mg_alerts_enabled")==="1";
-  if(!enabled) return;
-  const todayISO = toISO(new Date().toISOString());
-  const list=getPriceAlerts();
-  if(!list.length) return;
-
-  let changed=false;
-  for(const al of list){
-    const hit = newRows.find(r => r.Mandi===al.mandi && r.Fasal===al.fasal && toNum(r.Modal) >= Number(al.minModal));
-    if(hit){
-      // Prevent repeating multiple times same day
-      if(al.lastHitISO !== todayISO){
-        al.lastHitISO = todayISO;
-        showToast(`🔔 ${al.mandi} | ${al.fasal} Modal: ${hit.Modal} (Alert)`);
-        if(navigator.vibrate) navigator.vibrate([120, 60, 120]);
-        changed=true;
-      }
-    }
-  }
-  if(changed) setPriceAlerts(list);
 }
 
 /* YOUTUBE */
@@ -639,7 +536,6 @@ function openVideo(id, title){
 }
 
 /* TREND CHART */
-let bhavAll=[];
 let chart7Inst=null, chart30Inst=null;
 let currentTrendBase={mandi:"", fasal:""};
 
@@ -647,7 +543,6 @@ function closeTrend(){
   document.getElementById("trendModal").style.display="none";
   if(chart7Inst){chart7Inst.destroy(); chart7Inst=null;}
   if(chart30Inst){chart30Inst.destroy(); chart30Inst=null;}
-  // reset compare UI
   const cmpEnable=document.getElementById("cmpEnable");
   const cmpMandi=document.getElementById("cmpMandi");
   const cmpFasal=document.getElementById("cmpFasal");
@@ -662,12 +557,15 @@ function getSeries(mandi, fasal){
     .filter(r => (!mandi || r.Mandi===mandi) && (!fasal || r.Fasal===fasal))
     .sort((a,b)=> (a.DateISO||"").localeCompare(b.DateISO||""));
 }
+function toNum(x){
+  const n = Number((x||"").toString().replace(/[^\d.]/g,""));
+  return isNaN(n) ? 0 : n;
+}
 
 function buildCharts(baseRows, cmpRows){
   const rows7 = lastN(baseRows, 7);
   const rows30 = lastN(baseRows, 30);
 
-  // Align compare to base labels (simple mapping by Date)
   let cmpMap = null;
   if(cmpRows && cmpRows.length){
     cmpMap = new Map(cmpRows.map(r=>[r.Date, toNum(r.Modal)]));
@@ -701,17 +599,8 @@ function buildCharts(baseRows, cmpRows){
     ds30.push({data: cmp30, borderColor:"#7c3aed", backgroundColor:"rgba(124,58,237,0.08)", tension:0.25, fill:false});
   }
 
-  chart7Inst = new Chart(ctx7,{
-    type:"line",
-    data:{labels: labels7, datasets: ds7},
-    options:{responsive:true,plugins:{legend:{display:false}}}
-  });
-
-  chart30Inst = new Chart(ctx30,{
-    type:"line",
-    data:{labels: labels30, datasets: ds30},
-    options:{responsive:true,plugins:{legend:{display:false}}}
-  });
+  chart7Inst = new Chart(ctx7,{ type:"line", data:{labels: labels7, datasets: ds7}, options:{responsive:true,plugins:{legend:{display:false}}} });
+  chart30Inst = new Chart(ctx30,{ type:"line", data:{labels: labels30, datasets: ds30}, options:{responsive:true,plugins:{legend:{display:false}}} });
 }
 
 function openTrend(mandi, fasal){
@@ -722,7 +611,6 @@ function openTrend(mandi, fasal){
   const baseRows = getSeries(currentTrendBase.mandi, currentTrendBase.fasal);
   buildCharts(baseRows, null);
 
-  // ✅ Populate compare dropdowns
   const cmpMandi=document.getElementById("cmpMandi");
   const cmpFasal=document.getElementById("cmpFasal");
   const cmpEnable=document.getElementById("cmpEnable");
@@ -739,7 +627,6 @@ function openTrend(mandi, fasal){
         cmpMandi.value=""; cmpFasal.value="";
         buildCharts(getSeries(currentTrendBase.mandi, currentTrendBase.fasal), null);
       }else{
-        // when enabled but empty -> keep base only
         buildCharts(getSeries(currentTrendBase.mandi, currentTrendBase.fasal), null);
       }
     };
@@ -776,7 +663,7 @@ function bhavUI(tickerBlock){
       <div class="sectionHead gradA">🌾 Bhav</div>
       <div class="sectionBody">
 
-        <!-- ✅ Favorites (feature add) -->
+        <!-- ✅ Favorites -->
         <div class="card" style="margin:0 0 10px 0;">
           <div style="font-weight:900;">⭐ Favorites</div>
           <div id="favWrap" style="margin-top:6px;"></div>
@@ -807,25 +694,11 @@ function bhavUI(tickerBlock){
           <div><b id="rowsCount">0</b></div>
         </div>
 
-        <!-- ✅ Search in table (feature add) -->
+        <!-- ✅ Search -->
         <input id="tableSearch" placeholder="🔍 Search (Fasal/Mandi)" style="margin-top:10px;display:none;">
 
-        <div id="bhavTableWrap" style="margin-top:10px;"></div>
-
-        <!-- ✅ Custom Price Alerts (feature add) -->
-        <div class="sep"></div>
-        <div class="card" style="margin:0;">
-          <div style="font-weight:900;">🔔 Custom Price Alerts</div>
-          <div class="small" style="margin-top:4px;">Alert tabhi kaam karega jab header me "Alerts" ON ho.</div>
-          <div class="inlineRow" style="margin-top:10px;">
-            <select id="alMandi" style="min-width:180px;"><option value="">Select Mandi</option></select>
-            <select id="alFasal" style="min-width:180px;"><option value="">Select Fasal</option></select>
-            <input id="alModal" type="number" inputmode="numeric" placeholder="Modal ≥ (e.g. 5000)" style="min-width:160px;">
-            <button id="alAdd" class="miniBtn primary" type="button">Add Alert</button>
-          </div>
-          <div id="alertsList" style="margin-top:10px;"></div>
-        </div>
-
+        <!-- ✅ Full-width table: remove boxed look by stretching into section padding -->
+        <div id="bhavTableWrap" style="margin-top:10px;margin-left:-12px;margin-right:-12px;"></div>
       </div>
     </div>
 
@@ -868,7 +741,7 @@ function setBhavMode(m){
   setSelectionCard("");
 }
 
-/* ✅ selection card supports HTML now (feature add; rest behavior same) */
+/* selection card supports HTML */
 function setSelectionCard(html){
   const c = document.getElementById("selectionCard");
   if(!c) return;
@@ -908,38 +781,17 @@ function renderBhavTableMandiWise(rows){
     <table><thead>
       <tr><th>Date</th><th>Fasal</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
     </thead><tbody>
-      ${rows.map((r,idx)=>`
-        <tr data-idx="${idx}">
-          <td>${r.Date||""}</td><td>${escapeHtml(r.Fasal||"")}</td>
-          <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
-          <td>
-            <span class="trendLink" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}">${formatTrend(r.Trend||"")}</span>
-            <span class="shareBtn" title="Share" data-share="1" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}" data-date="${escapeHtml(r.Date||"")}" data-min="${escapeHtml(r.Min||"")}" data-max="${escapeHtml(r.Max||"")}" data-modal="${escapeHtml(r.Modal||"")}" data-trend="${escapeHtml(r.Trend||"")}">🔗</span>
-          </td>
+      ${rows.map(r=>`
+        <tr>
+          <td>${escapeHtml(r.Date||"")}</td><td>${escapeHtml(r.Fasal||"")}</td>
+          <td>${escapeHtml(r.Min||"")}</td><td>${escapeHtml(r.Max||"")}</td><td>${escapeHtml(r.Modal||"")}</td>
+          <td><span class="trendLink" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}">${formatTrend(r.Trend||"")}</span></td>
         </tr>
       `).join("")}
     </tbody></table>
   `;
-
-  // Trend click
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
     c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
-  });
-
-  // ✅ Share click
-  document.querySelectorAll("#bhavTableWrap .shareBtn[data-share='1']").forEach(btn=>{
-    btn.onclick=(e)=>{
-      e.stopPropagation();
-      shareRow({
-        Date: btn.dataset.date,
-        Mandi: btn.dataset.mandi,
-        Fasal: btn.dataset.fasal,
-        Min: btn.dataset.min,
-        Max: btn.dataset.max,
-        Modal: btn.dataset.modal,
-        Trend: btn.dataset.trend
-      });
-    };
   });
 }
 
@@ -950,36 +802,17 @@ function renderBhavTableFasalWise(rows){
     <table><thead>
       <tr><th>Date</th><th>Mandi</th><th>Min</th><th>Max</th><th>Modal</th><th>Trend</th></tr>
     </thead><tbody>
-      ${rows.map((r,idx)=>`
-        <tr data-idx="${idx}">
-          <td>${r.Date||""}</td><td>${escapeHtml(r.Mandi||"")}</td>
-          <td>${r.Min||""}</td><td>${r.Max||""}</td><td>${r.Modal||""}</td>
-          <td>
-            <span class="trendLink" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}">${formatTrend(r.Trend||"")}</span>
-            <span class="shareBtn" title="Share" data-share="1" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}" data-date="${escapeHtml(r.Date||"")}" data-min="${escapeHtml(r.Min||"")}" data-max="${escapeHtml(r.Max||"")}" data-modal="${escapeHtml(r.Modal||"")}" data-trend="${escapeHtml(r.Trend||"")}">🔗</span>
-          </td>
+      ${rows.map(r=>`
+        <tr>
+          <td>${escapeHtml(r.Date||"")}</td><td>${escapeHtml(r.Mandi||"")}</td>
+          <td>${escapeHtml(r.Min||"")}</td><td>${escapeHtml(r.Max||"")}</td><td>${escapeHtml(r.Modal||"")}</td>
+          <td><span class="trendLink" data-mandi="${escapeHtml(r.Mandi||"")}" data-fasal="${escapeHtml(r.Fasal||"")}">${formatTrend(r.Trend||"")}</span></td>
         </tr>
       `).join("")}
     </tbody></table>
   `;
-
   document.querySelectorAll("#bhavTableWrap .trendLink").forEach(c=>{
     c.onclick=()=>openTrend(c.dataset.mandi, c.dataset.fasal);
-  });
-
-  document.querySelectorAll("#bhavTableWrap .shareBtn[data-share='1']").forEach(btn=>{
-    btn.onclick=(e)=>{
-      e.stopPropagation();
-      shareRow({
-        Date: btn.dataset.date,
-        Mandi: btn.dataset.mandi,
-        Fasal: btn.dataset.fasal,
-        Min: btn.dataset.min,
-        Max: btn.dataset.max,
-        Modal: btn.dataset.modal,
-        Trend: btn.dataset.trend
-      });
-    };
   });
 }
 
@@ -1020,7 +853,7 @@ async function init(){
     Trend: getField(r,["Trend","trend"])
   })).filter(x=>x.Date || x.Mandi || x.Fasal);
 
-  // ✅ Favorites render
+  // favorites render
   renderFavs();
 
   // stats
@@ -1034,16 +867,6 @@ async function init(){
   // fill dropdowns
   unique(bhavAll.map(r=>r.State)).forEach(s=> mwState.insertAdjacentHTML("beforeend", `<option>${escapeHtml(s)}</option>`));
   unique(bhavAll.map(r=>r.Fasal)).forEach(f=> fwFasal.insertAdjacentHTML("beforeend", `<option>${escapeHtml(f)}</option>`));
-
-  // ✅ Alerts dropdowns
-  const alMandi=document.getElementById("alMandi");
-  const alFasal=document.getElementById("alFasal");
-  unique(bhavAll.map(r=>r.Mandi)).forEach(m=> alMandi.insertAdjacentHTML("beforeend", `<option>${escapeHtml(m)}</option>`));
-  unique(bhavAll.map(r=>r.Fasal)).forEach(f=> alFasal.insertAdjacentHTML("beforeend", `<option>${escapeHtml(f)}</option>`));
-  document.getElementById("alAdd").onclick=()=>{
-    addPriceAlert(alMandi.value, alFasal.value, document.getElementById("alModal").value);
-  };
-  renderAlerts();
 
   mwState.onchange=()=>{
     mwMandi.innerHTML=`<option value="">Select Mandi</option>`;
@@ -1065,7 +888,6 @@ async function init(){
       setSelectionCard("");
       return;
     }
-    // ✅ selection card + favorite save button
     setSelectionCard(`📍 Mandi: ${escapeHtml(m)} <button class="miniBtn" style="float:right" onclick="addFav('mandi','${(m||"").replace(/'/g,"\\'")}')">⭐ Save</button>`);
     const rows = bhavAll
       .filter(r=>(!s || r.State===s) && r.Mandi===m)
@@ -1083,7 +905,6 @@ async function init(){
       setSelectionCard("");
       return;
     }
-    // ✅ selection card + favorite save button
     setSelectionCard(`🌾 Fasal: ${escapeHtml(f)} <button class="miniBtn" style="float:right" onclick="addFav('fasal','${(f||"").replace(/'/g,"\\'")}')">⭐ Save</button>`);
     const rows = bhavAll
       .filter(r=>r.Fasal===f)
@@ -1169,7 +990,7 @@ async function pollBhav(){
       }
       if(sig && !oldSig) localStorage.setItem("mg_last_bhav_sig", sig);
 
-      // ✅ refresh bhavAll cache & check custom alerts
+      // keep bhavAll refreshed for compare charts
       bhavAll = (b||[]).map(r=>({
         Date: getField(r,["Date","date"]),
         DateISO: toISO(getField(r,["Date","date"])),
@@ -1181,8 +1002,6 @@ async function pollBhav(){
         Modal: getField(r,["Modal","modal"]),
         Trend: getField(r,["Trend","trend"])
       })).filter(x=>x.Date || x.Mandi || x.Fasal);
-
-      checkCustomAlerts(bhavAll);
 
     }catch(e){}
   }, 300000);
