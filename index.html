@@ -188,7 +188,7 @@ canvas{background:var(--card); border:1px solid var(--border); border-radius:12p
 }
 .rowsBadge b{font-weight:900;}
 
-/* ✅ Added features styles (Favorites/Search/Compare) */
+/* ✅ Added features styles (Favorites/Compare/Load more) */
 .pillRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -824,9 +824,6 @@ function bhavUI(tickerBlock){
           <div><b id="rowsCount">0</b></div>
         </div>
 
-        <!-- ✅ Search -->
-        <input id="tableSearch" placeholder="🔍 Search (Fasal/Mandi)" style="margin-top:10px;display:none;">
-
         <!-- ✅ Full-width table -->
         <div id="bhavTableWrap" style="margin-top:10px;margin-left:-12px;margin-right:-12px;"></div>
       </div>
@@ -866,8 +863,6 @@ function setBhavMode(m){
   document.getElementById("fwBox").style.display = (m==="fasalWise") ? "block" : "none";
   document.getElementById("bhavTableWrap").innerHTML="";
   document.getElementById("rowsBadge").style.display="none";
-  const s=document.getElementById("tableSearch");
-  if(s){ s.style.display="none"; s.value=""; }
   setSelectionCard("");
 }
 
@@ -882,27 +877,6 @@ function setSelectionCard(html){
     c.style.display="block";
     c.innerHTML=html;
   }
-}
-
-/* ✅ Search attachment */
-function attachTableSearch(allRows, mode){
-  const inp = document.getElementById("tableSearch");
-  if(!inp) return;
-  inp.style.display = "block";
-  inp.value = "";
-  inp.oninput = ()=>{
-    const q = inp.value.trim().toLowerCase();
-    if(!q){
-      resetPagination(allRows, mode);
-      return;
-    }
-    const filtered = allRows.filter(r=>{
-      const a=(r.Fasal||"").toLowerCase();
-      const b=(r.Mandi||"").toLowerCase();
-      return a.includes(q) || b.includes(q);
-    });
-    resetPagination(filtered, mode);
-  };
 }
 
 /* ✅ Draw table implementations (with Load more) */
@@ -1011,7 +985,6 @@ async function init(){
       .forEach(m=>mwMandi.insertAdjacentHTML("beforeend", `<option>${escapeHtml(m)}</option>`));
     document.getElementById("bhavTableWrap").innerHTML="";
     document.getElementById("rowsBadge").style.display="none";
-    const ts=document.getElementById("tableSearch"); if(ts){ts.style.display="none"; ts.value="";}
     setSelectionCard("");
   };
 
@@ -1020,7 +993,6 @@ async function init(){
     if(!m){
       document.getElementById("bhavTableWrap").innerHTML="";
       document.getElementById("rowsBadge").style.display="none";
-      const ts=document.getElementById("tableSearch"); if(ts){ts.style.display="none"; ts.value="";}
       setSelectionCard("");
       return;
     }
@@ -1035,7 +1007,6 @@ async function init(){
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
 
     resetPagination(rows, "mandiWise");
-    attachTableSearch(rows, "mandiWise");
   };
 
   fwFasal.onchange=()=>{
@@ -1043,7 +1014,6 @@ async function init(){
     if(!f){
       document.getElementById("bhavTableWrap").innerHTML="";
       document.getElementById("rowsBadge").style.display="none";
-      const ts=document.getElementById("tableSearch"); if(ts){ts.style.display="none"; ts.value="";}
       setSelectionCard("");
       return;
     }
@@ -1055,7 +1025,6 @@ async function init(){
       .sort((a,b)=> (b.DateISO||"").localeCompare(a.DateISO||""));
 
     resetPagination(rows, "fasalWise");
-    attachTableSearch(rows, "fasalWise");
   };
 
   setBhavMode("mandiWise");
