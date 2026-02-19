@@ -2,196 +2,138 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mandi GOLD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-:root{--bg:#0d0f12;--card:#111;--text:#fff;--muted:#ccc;--brand:#0f9d58;}
-.light{--bg:#f4f7f8;--card:#fff;--text:#111;--muted:#444;--brand:#0f9d58;}
-body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);}
-header{background:var(--brand);text-align:center;padding:12px;font-size:18px;position:sticky;top:0;z-index:10;}
-.container{padding:10px 10px 140px;}
-.section{display:none;} .section.active{display:block;}
-h3{margin:10px 0;}
+:root {
+  --bg:#000;
+  --card:#111;
+  --text:#fff;
+}
+.light {
+  --bg:#f2f2f2;
+  --card:#fff;
+  --text:#000;
+}
+body { margin:0; font-family:Arial; background:var(--bg); color:var(--text); }
 
-#splash{position:fixed;inset:0;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:99999;color:#fff;}
-.loader{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top:4px solid #fff;border-radius:50%;animation:spin 1s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
+#splash {
+  position:fixed; inset:0; background:#000; color:#FFD700;
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; z-index:9999;
+}
 
-.theme-toggle{position:fixed;right:10px;top:10px;background:#fff;color:#000;border-radius:20px;padding:4px 10px;font-size:12px;cursor:pointer;z-index:20;}
-.light .theme-toggle{background:#000;color:#fff;}
+.tab { display:none; padding:10px; }
+.tab.active { display:block; }
 
-table{width:100%;border-collapse:collapse;background:var(--card);}
-th,td{border:1px solid #333;padding:6px;font-size:12px;text-align:center;color:var(--text);}
-th{background:var(--brand);}
+.bottom-nav {
+  position:fixed; bottom:0; width:100%; display:flex;
+  background:#111; border-top:1px solid #333;
+}
+.bottom-nav button {
+  flex:1; padding:8px; background:none; color:white; border:none;
+}
+.bottom-nav img { width:28px; }
 
-.card{background:var(--card);border-radius:10px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.25);overflow:hidden;}
-.list-row{display:flex;gap:10px;cursor:pointer;align-items:center;padding:8px;}
-.list-row img{width:30%;max-width:120px;height:70px;object-fit:cover;border-radius:8px;}
-.list-row b{width:70%;font-size:15px;}
-.detail{display:none;padding:10px;color:var(--muted);}
-.player iframe{width:100%;height:220px;border:none;border-radius:10px;margin-top:8px;}
+.card {
+  display:flex; gap:10px; margin:10px 0;
+  background:var(--card); padding:10px; border-radius:10px;
+}
+.card img { width:30%; border-radius:8px; }
+.card h4 { width:70%; margin:0; }
 
-.filters{background:var(--card);padding:10px;border-radius:10px;margin-bottom:10px;}
-.filters select,.filters input{width:100%;padding:6px;margin:4px 0;border-radius:6px;border:1px solid #666;background:var(--bg);color:var(--text);}
+iframe { width:100%; height:200px; border-radius:10px; }
+select,input{ padding:6px; margin:4px; width:48%; }
 
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--brand);display:flex;justify-content:space-around;padding:6px 0;}
-.bottom-nav button{background:none;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:11px;}
-.bottom-nav .icon{font-size:22px;}
-.bottom-nav button.active{color:#ffe082;font-weight:bold;}
+.toggle {
+  position:fixed; top:10px; right:10px;
+}
 </style>
 </head>
+
 <body>
 
-<div id="splash"><h1>🌾 Mandi GOLD</h1><div class="loader"></div></div>
-<div class="theme-toggle" onclick="toggleTheme()">🌗 Theme</div>
-<header>🌾 Mandi GOLD</header>
+<div id="splash">🌾 Mandi GOLD</div>
 
-<div class="container">
-
-<!-- Bhav -->
-<div id="bhav" class="section active">
-<h3>📊 Mandi Bhav</h3>
-
-<div class="filters">
-  <select id="filterType" onchange="renderFilterUI()">
-    <option value="mandi">Mandi anusaar</option>
-    <option value="fasal">Fasal anusaar</option>
-  </select>
-
-  <div id="mandiFilters">
-    <input id="stateF" placeholder="State">
-    <input id="districtF" placeholder="District">
-    <input id="mandiF" placeholder="Mandi name">
-    <input id="fromDateM" type="date">
-    <input id="toDateM" type="date">
-  </div>
-
-  <div id="fasalFilters" style="display:none;">
-    <input id="fasalF" placeholder="Fasal">
-    <input id="fromDateF" type="date">
-    <input id="toDateF" type="date">
-  </div>
-
-  <button onclick="applyFilter()">Apply Filter</button>
+<div class="toggle">
+<button onclick="toggleTheme()">🌓</button>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>Date</th><th>State</th><th>District</th><th>Mandi</th><th>Fasal</th>
-<th>Min</th><th>Max</th><th>Modal</th><th>Trend</th>
-</tr>
-</thead>
-<tbody id="bhavTable"></tbody>
-</table>
-</div>
-
-<!-- News -->
-<div id="news" class="section"><h3>📰 Kisaan News</h3><div id="newsList"></div></div>
-
-<!-- Trend -->
-<div id="trend" class="section"><h3>📈 Teji / Mandi (Future Report)</h3><div id="trendList"></div></div>
-
-<!-- Weather -->
-<div id="weather" class="section"><h3>🌦️ Mausam Update</h3><div id="weatherList"></div></div>
-
-<!-- Video -->
-<div id="video" class="section"><h3>🎥 Video</h3><div id="videoList"></div></div>
-
-</div>
+<div id="bhav" class="tab active"></div>
+<div id="news" class="tab"></div>
+<div id="trend" class="tab"></div>
+<div id="mausam" class="tab"></div>
+<div id="video" class="tab"></div>
 
 <div class="bottom-nav">
-  <button onclick="showSection('bhav',this)"><div class="icon">🌾</div>Bhav</button>
-  <button onclick="showSection('news',this)"><div class="icon">📰</div>News</button>
-  <button onclick="showSection('trend',this)"><div class="icon">📈</div>Teji/Mandi</button>
-  <button onclick="showSection('weather',this)"><div class="icon">🌦️</div>Mausam</button>
-  <button onclick="showSection('video',this)"><div class="icon">🎥</div>Video</button>
+  <button onclick="showTab('bhav')"><img src="bhav.png"><br>Bhav</button>
+  <button onclick="showTab('news')"><img src="news.png"><br>News</button>
+  <button onclick="showTab('trend')"><img src="trend.png"><br>Teji/Mandi</button>
+  <button onclick="showTab('mausam')"><img src="mausam.png"><br>Mausam</button>
+  <button onclick="showTab('video')"><img src="video.png"><br>Video</button>
 </div>
 
 <script>
-const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
-const URL=s=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${s}`;
-const parse=t=>JSON.parse(t.substr(47).slice(0,-2)).table.rows.reverse();
-let bhavData=[];
+const SHEET_ID = "1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 
-function showSection(id,btn){
-  localStorage.setItem("tab",id);
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+const TABS = ["bhav","news","trend","mausam","video"];
+let currentTab = localStorage.getItem("tab") || "bhav";
+
+function showTab(tab){
+  TABS.forEach(t=>document.getElementById(t).classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+  localStorage.setItem("tab",tab);
 }
-function restoreTab(){
-  const t=localStorage.getItem("tab")||"bhav";
-  const btn=[...document.querySelectorAll(".bottom-nav button")].find(b=>b.textContent.toLowerCase().includes(t));
-  showSection(t,btn||document.querySelector(".bottom-nav button"));
-}
+
+showTab(currentTab);
+
 function toggleTheme(){
   document.body.classList.toggle("light");
-  localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");
-}
-if(localStorage.getItem("theme")==="light") document.body.classList.add("light");
-
-function renderFilterUI(){
-  const t=document.getElementById("filterType").value;
-  mandiFilters.style.display = t==="mandi"?"block":"none";
-  fasalFilters.style.display = t==="fasal"?"block":"none";
 }
 
-async function loadBhav(){
-  bhavData=parse(await (await fetch(URL("Bhav"))).text());
-  renderBhav(bhavData);
-}
-function renderBhav(rows){
-  bhavTable.innerHTML = rows.map(x=>`
-    <tr>
-      <td>${x.c[0]?.v||""}</td>
-      <td>${x.c[1]?.v||""}</td>
-      <td>${x.c[2]?.v||""}</td>
-      <td>${x.c[3]?.v||""}</td>
-      <td>${x.c[4]?.v||""}</td>
-      <td>${x.c[5]?.v||""}</td>
-      <td>${x.c[6]?.v||""}</td>
-      <td>${x.c[7]?.v||""}</td>
-      <td>${x.c[8]?.v||""}</td>
-    </tr>`).join("");
-}
-function applyFilter(){
-  let rows=[...bhavData];
-  const type=filterType.value;
-  if(type==="mandi"){
-    const s=stateF.value.toLowerCase();
-    const d=districtF.value.toLowerCase();
-    const m=mandiF.value.toLowerCase();
-    const f=fromDateM.value;
-    const t=toDateM.value;
-    rows=rows.filter(x=>
-      (!s || x.c[1]?.v?.toLowerCase().includes(s)) &&
-      (!d || x.c[2]?.v?.toLowerCase().includes(d)) &&
-      (!m || x.c[3]?.v?.toLowerCase().includes(m)) &&
-      (!f || x.c[0]?.v >= f) &&
-      (!t || x.c[0]?.v <= t)
-    );
-  }else{
-    const fas=fasalF.value.toLowerCase();
-    const f=fromDateF.value;
-    const t=toDateF.value;
-    rows=rows.filter(x=>
-      (!fas || x.c[4]?.v?.toLowerCase().includes(fas)) &&
-      (!f || x.c[0]?.v >= f) &&
-      (!t || x.c[0]?.v <= t)
-    );
-  }
-  renderBhav(rows);
+setTimeout(()=>document.getElementById("splash").style.display="none",2000);
+
+// Fetch Functions
+function loadSheet(name, cb){
+ fetch(`https://opensheet.elk.sh/${SHEET_ID}/${name}`)
+ .then(r=>r.json()).then(cb);
 }
 
-/* बाकी tabs ke functions tumhare pichhle code jaise hi rahenge */
-/* News, Trend, Weather, Video functions same as before */
+loadSheet("News", data=>{
+ document.getElementById("news").innerHTML = data.reverse().map(n=>`
+ <div class="card" onclick="alert('${n.FullNews}')">
+  <img src="${n.ImageURL}">
+  <h4>${n.Title}</h4>
+ </div>`).join("");
+});
 
-Promise.all([loadBhav()]).then(()=>{
-  restoreTab();
-  setTimeout(()=>document.getElementById("splash").style.display="none",2000);
+loadSheet("TejiMandi", data=>{
+ document.getElementById("trend").innerHTML = data.reverse().map(n=>`
+ <div class="card" onclick="alert('${n.FullReport}')">
+  <img src="${n.ImageURL}">
+  <h4>${n.Title}</h4>
+ </div>`).join("");
+});
+
+loadSheet("Mausam", data=>{
+ document.getElementById("mausam").innerHTML = data.reverse().map(n=>`
+ <div class="card"><h4>${n.Title}</h4><p>${n.FullUpdate}</p></div>
+ `).join("");
+});
+
+loadSheet("Video", data=>{
+ document.getElementById("video").innerHTML = data.reverse().map(v=>{
+   let id = v.YouTubeLink.split("v=")[1];
+   return `<div class="card">
+     <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+     <h4 onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
+       ${v.Title}
+     </h4>
+   </div>`;
+ }).join("");
 });
 </script>
+
 </body>
 </html>
