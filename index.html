@@ -3,26 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <title>Mandi GOLD</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-:root{--bg:#000;--card:#111;--txt:#fff}
-.light{--bg:#f4f4f4;--card:#fff;--txt:#000}
-body{margin:0;font-family:system-ui;background:var(--bg);color:var(--txt)}
+:root{--bg:#0d0f12;--card:#111;--text:#fff;--brand:#0f9d58}
+.light{--bg:#f4f4f4;--card:#fff;--text:#000}
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--text)}
 #splash{position:fixed;inset:0;background:#000;color:#FFD700;
-display:flex;align-items:center;justify-content:center;
-font-size:32px;z-index:999}
-.tab{display:none;padding:12px;padding-bottom:80px}
+display:flex;align-items:center;justify-content:center;font-size:30px;z-index:9999}
+.tab{display:none;padding:12px;padding-bottom:90px}
 .tab.active{display:block}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#111}
-.bottom-nav button{flex:1;border:0;background:none;color:#fff;padding:8px}
-.bottom-nav img{width:26px;height:26px}
+.bottom-nav{position:fixed;bottom:0;width:100%;display:flex;background:#111}
+.bottom-nav button{flex:1;background:none;border:0;color:white;padding:8px;font-size:12px}
 .card{display:flex;gap:10px;background:var(--card);padding:10px;border-radius:10px;margin-bottom:10px}
 .card img{width:30%;border-radius:8px;object-fit:cover}
-.card h4{margin:0;width:70%}
-iframe{width:100%;height:200px;border-radius:10px;border:0}
+iframe{width:100%;height:220px;border-radius:10px;border:0}
 select,input{width:48%;padding:6px;margin:4px 1%}
-.toggle{position:fixed;top:10px;right:10px;z-index:10}
+.toggle{position:fixed;top:10px;right:10px}
 </style>
 </head>
 <body>
@@ -37,119 +35,133 @@ select,input{width:48%;padding:6px;margin:4px 1%}
 <div id="video" class="tab"></div>
 
 <div class="bottom-nav">
-<button onclick="showTab('bhav')">Bhav</button>
-<button onclick="showTab('news')">News</button>
-<button onclick="showTab('trend')">Teji/Mandi</button>
-<button onclick="showTab('mausam')">Mausam</button>
-<button onclick="showTab('video')">Video</button>
+<button onclick="showTab('bhav')">🌾 Bhav</button>
+<button onclick="showTab('news')">📰 News</button>
+<button onclick="showTab('trend')">📈 Teji</button>
+<button onclick="showTab('mausam')">🌦️ Mausam</button>
+<button onclick="showTab('video')">🎥 Video</button>
 </div>
 
 <script>
 const SHEET_ID="1SX6L73WQ57OJ0tUUJwEjmSVgn3LjJLe54B4Lp_JN2SE";
 const TABS=["bhav","news","trend","mausam","video"];
-let active=localStorage.getItem("tab")||"bhav";
 
 function showTab(t){
  TABS.forEach(x=>document.getElementById(x).classList.remove("active"));
  document.getElementById(t).classList.add("active");
  localStorage.setItem("tab",t);
 }
-showTab(active);
+showTab(localStorage.getItem("tab")||"bhav");
+
 setTimeout(()=>splash.style.display="none",2000);
 function toggleTheme(){document.body.classList.toggle("light")}
 
-async function load(sheet){
- const r=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${sheet}`);
- return r.json();
+async function loadSheet(name){
+ let r=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${name}`);
+ let text=await r.text();
+ return JSON.parse(text.substr(47).slice(0,-2)).table.rows;
 }
 
-/* ---------- NEWS ---------- */
-load("News").then(d=>{
- news.innerHTML=d.reverse().map(n=>`
- <div class="card" onclick="alert(n.Full)">
-  <img src="${n.ImageURL}">
-  <h4>${n.Title}</h4>
- </div>`).join("");
-});
+/* ---------------- BHAV ---------------- */
+loadSheet("Bhav").then(rows=>{
+ let data=rows.map(r=>({
+   Date:r.c[0]?.v,
+   State:r.c[1]?.v,
+   District:r.c[2]?.v,
+   Mandi:r.c[3]?.v,
+   Fasal:r.c[4]?.v,
+   Min:r.c[5]?.v,
+   Max:r.c[6]?.v,
+   Modal:r.c[7]?.v,
+   Trend:r.c[8]?.v
+ })).reverse();
 
-/* ---------- TEJI MANDI ---------- */
-load("TejiMandi").then(d=>{
- trend.innerHTML=d.reverse().map(n=>`
- <div class="card" onclick="alert(n.Full)">
-  <img src="${n.ImageURL}">
-  <h4>${n.Title}</h4>
- </div>`).join("");
-});
-
-/* ---------- MAUSAM ---------- */
-load("Mausam").then(d=>{
- mausam.innerHTML=d.reverse().map(n=>`
- <div class="card"><h4>${n.Title}</h4><p>${n.Full}</p></div>`).join("");
-});
-
-/* ---------- VIDEO ---------- */
-load("Video").then(d=>{
- video.innerHTML=d.reverse().map(v=>{
-  let id=v.YouTubeLink.split("v=")[1]?.split("&")[0];
-  return `<div class="card">
-   <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg"
-    onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
-   <h4>${v.Title}</h4>
-  </div>`;
- }).join("");
-});
-
-/* ---------- BHAV + FILTER + CHART + NOTIFICATION ---------- */
-let lastDate=localStorage.getItem("lastBhavDate")||"";
-load("Bhav").then(d=>{
- const latest=d[d.length-1]?.Date;
- if(latest && latest!==lastDate){
-   alert("🔔 New Bhav Update Aaya Hai!");
-   localStorage.setItem("lastBhavDate",latest);
+ let latest=data[0]?.Date;
+ if(localStorage.getItem("lastDate")!==latest){
+   alert("🔔 New Bhav Update!");
+   localStorage.setItem("lastDate",latest);
  }
 
  bhav.innerHTML=`
- <select id="state"></select>
- <select id="district"></select>
- <select id="mandi"></select>
- <select id="fasal"></select>
- <canvas id="chart"></canvas>
- <div id="bhavList"></div>`;
+<select id="state"></select>
+<select id="district"></select>
+<select id="mandi"></select>
+<select id="fasal"></select>
+<canvas id="chart"></canvas>
+<div id="bhavList"></div>`;
 
- let states=[...new Set(d.map(x=>x.State))];
- state.innerHTML=`<option>State</option>`+states.map(s=>`<option>${s}</option>`).join("");
+ state.innerHTML=`<option>State</option>`+
+ [...new Set(data.map(x=>x.State))].map(s=>`<option>${s}</option>`).join("");
 
  state.onchange=()=>{
-  let ds=[...new Set(d.filter(x=>x.State==state.value).map(x=>x.District))];
-  district.innerHTML=`<option>District</option>`+ds.map(x=>`<option>${x}</option>`).join("");
+   let ds=[...new Set(data.filter(x=>x.State==state.value).map(x=>x.District))];
+   district.innerHTML=`<option>District</option>`+ds.map(x=>`<option>${x}</option>`).join("");
  }
 
  district.onchange=()=>{
-  let ms=[...new Set(d.filter(x=>x.District==district.value).map(x=>x.Mandi))];
-  mandi.innerHTML=`<option>Mandi</option>`+ms.map(x=>`<option>${x}</option>`).join("");
+   let ms=[...new Set(data.filter(x=>x.District==district.value).map(x=>x.Mandi))];
+   mandi.innerHTML=`<option>Mandi</option>`+ms.map(x=>`<option>${x}</option>`).join("");
  }
 
  mandi.onchange=()=>{
-  let fs=[...new Set(d.filter(x=>x.Mandi==mandi.value).map(x=>x.Fasal))];
-  fasal.innerHTML=`<option>Fasal</option>`+fs.map(x=>`<option>${x}</option>`).join("");
+   let fs=[...new Set(data.filter(x=>x.Mandi==mandi.value).map(x=>x.Fasal))];
+   fasal.innerHTML=`<option>Fasal</option>`+fs.map(x=>`<option>${x}</option>`).join("");
  }
 
  fasal.onchange=()=>{
-  let rows=d.filter(x=>x.Mandi==mandi.value && x.Fasal==fasal.value);
-  bhavList.innerHTML=rows.map(r=>`
+   let rows=data.filter(x=>x.Mandi==mandi.value && x.Fasal==fasal.value);
+   bhavList.innerHTML=rows.map(r=>`
    <div class="card">
-    <h4>${r.Date} | ${r.Fasal}</h4>
-    <p>Min:${r.Min} Max:${r.Max} Modal:${r.Modal} (${r.Trend})</p>
+    <div>
+     <b>${r.Date}</b><br>
+     Min:${r.Min} Max:${r.Max} Modal:${r.Modal}<br>
+     Trend:${r.Trend}
+    </div>
    </div>`).join("");
 
-  new Chart(chart.getContext("2d"),{
-    type:"line",
-    data:{
-      labels:rows.map(r=>r.Date),
-      datasets:[{label:"Modal Bhav",data:rows.map(r=>+r.Modal),borderColor:"gold"}]
-    }
-  });
+   new Chart(chart,{type:"line",
+    data:{labels:rows.map(r=>r.Date),
+    datasets:[{label:"Modal",data:rows.map(r=>r.Modal),borderColor:"gold"}]}})
  }
+});
+
+/* ---------------- NEWS ---------------- */
+loadSheet("News").then(rows=>{
+ news.innerHTML=rows.reverse().map(r=>`
+ <div class="card">
+  <img src="${r.c[1]?.v}">
+  <h4>${r.c[0]?.v}</h4>
+ </div>`).join("");
+});
+
+/* ---------------- TEJI ---------------- */
+loadSheet("TejiMandi").then(rows=>{
+ trend.innerHTML=rows.reverse().map(r=>`
+ <div class="card">
+  <img src="${r.c[1]?.v}">
+  <h4>${r.c[0]?.v}</h4>
+ </div>`).join("");
+});
+
+/* ---------------- MAUSAM ---------------- */
+loadSheet("Mausam").then(rows=>{
+ mausam.innerHTML=rows.reverse().map(r=>`
+ <div class="card">
+  <h4>${r.c[0]?.v}</h4>
+  <p>${r.c[1]?.v}</p>
+ </div>`).join("");
+});
+
+/* ---------------- VIDEO ---------------- */
+loadSheet("Video").then(rows=>{
+ video.innerHTML=rows.reverse().map(r=>{
+  let id=r.c[1]?.v.split("v=")[1]?.split("&")[0];
+  return `<div class="card">
+   <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg"
+    onclick="this.parentElement.innerHTML='<iframe src=https://www.youtube.com/embed/${id}?autoplay=1 allowfullscreen></iframe>'">
+   <h4>${r.c[0]?.v}</h4>
+  </div>`;
+ }).join("");
 });
 </script>
 </body>
